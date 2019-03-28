@@ -62,9 +62,7 @@ catch( ArticleMissingBody $Exception )
 ```
 ### Roadmap
 
-Repository::getArticlesByTag( string $Tag ) : array
+Repository::getAllByDateRange( string $Start, string $End ) : array
 
-Repository::getArticlesByDateRange( string $Start, string $End ) : array
-
-Repository::getArticlesByPage( int $PageNum, int $PageCount ) : array
+Repository::getAllByPage( int $PageNum, int $PageCount ) : array
 
