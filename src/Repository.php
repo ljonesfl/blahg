@@ -97,7 +97,7 @@ class Repository
 
 	/**
 	 * @param string $Tag
-	 * @return Article
+	 * @return array
 	 */
 	public function getAllByTag( string $Tag ) : array
 	{
@@ -113,4 +113,24 @@ class Repository
 
 		return $List;
 	}
+
+	/**
+	 * @param string $Category
+	 * @return array
+	 */
+	public function getAllByCategory( string $Category ) : array
+	{
+		$List = [];
+
+		foreach( $this->_List as $Article )
+		{
+			if( $Article->getCategory() == $Category )
+			{
+				$List[] = $Article;
+			}
+		}
+
+		return $List;
+	}
+
 }
