@@ -87,18 +87,30 @@ class Repository
 		{
 			if( $Article->getSlug() == $Slug )
 			{
-				$File = $this->_Root.'/'.$Article->getBodyPath();
-
-				if( !file_exists( $File ) )
-				{
-					throw new ArticleMissingBody();
-				}
-
-				$Article->setBody( file_get_contents( $File ) );
+				$Article->loadBody( $this->_Root );
 				return $Article;
 			}
 		}
 
 		throw new ArticleNotFound();
+	}
+
+	/**
+	 * @param string $Tag
+	 * @return Article
+	 */
+	public function getAllByTag( string $Tag ) : array
+	{
+		$List = [];
+
+		foreach( $this->_List as $Article )
+		{
+			if( $Article->hasTag( $Tag ) )
+			{
+				$List[] = $Article;
+			}
+		}
+
+		return $List;
 	}
 }

@@ -2,7 +2,6 @@
 
 use Blahg\Repository;
 use Blahg\Exception\ArticleNotFound;
-use PHPUnit\Framework\TestCase;
 
 class RepositoryTest extends PHPUnit\Framework\TestCase
 {
@@ -44,4 +43,23 @@ class RepositoryTest extends PHPUnit\Framework\TestCase
 			$this->Repo->getAll()
 		);
 	}
+
+	public function testAllGetByTag()
+	{
+		$List = $this->Repo->getAllByTag( 'broccoli' );
+
+		$this->assertTrue(
+			count( $List ) > 0
+		);
+	}
+
+	public function testGetAllByTagFail()
+	{
+		$List = $this->Repo->getAllByTag( 'squash' );
+
+		$this->assertFalse(
+			count( $List ) > 0
+		);
+	}
+
 }
