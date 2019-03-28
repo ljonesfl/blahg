@@ -1,4 +1,4 @@
-## 0.0.3
+## 0.0.3 2019-03-28
 
 * Added Repository::getAllByCategory()
 
