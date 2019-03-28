@@ -2,6 +2,8 @@
 
 namespace Blahg;
 
+use Blahg\Exception\ArticleMissingBody;
+
 class Article
 {
 	private $_Slug;
@@ -136,5 +138,38 @@ class Article
 	{
 		$this->_Tags = $Tags;
 		return $this;
+	}
+
+	/**
+	 * @param string $Target
+	 * @return bool
+	 */
+	public function hasTag( string $Target ) : bool
+	{
+		foreach( $this->_Tags as $Tag )
+		{
+			if( $Tag == $Target )
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * @param string $Root
+	 * @throws ArticleMissingBody
+	 */
+	public function loadBody( string $Root ) : void
+	{
+		$File = $Root . '/' . $this->getBodyPath();
+
+		if( !file_exists( $File ) )
+		{
+			throw new ArticleMissingBody();
+		}
+
+		$this->setBody( file_get_contents( $File ) );
 	}
 }
