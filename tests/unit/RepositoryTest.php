@@ -62,4 +62,22 @@ class RepositoryTest extends PHPUnit\Framework\TestCase
 		);
 	}
 
+	public function testAllGetByCategory()
+	{
+		$List = $this->Repo->getAllByCategory( 'Food' );
+
+		$this->assertTrue(
+			count( $List ) > 0
+		);
+	}
+
+	public function testGetAllByCategoryFail()
+	{
+		$List = $this->Repo->getAllByCategory( 'squash' );
+
+		$this->assertFalse(
+			count( $List ) > 0
+		);
+	}
+
 }
