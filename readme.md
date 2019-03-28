@@ -6,7 +6,7 @@ the actual article written in markdown.
 
 ## Descriptor
 
-Example:
+Example: 10-reasons-broccoli.yaml
 
 title: 10 Reasons Why I Love Broccoli
 slug: 10-reasons-why-i-love-broccoli
@@ -57,7 +57,7 @@ try
 }
 catch( ArticleNotFound $Exception )
 {}
-catch( ArticleMissingMody $Exception )
+catch( ArticleMissingBody $Exception )
 {}
 ```
 ### Roadmap

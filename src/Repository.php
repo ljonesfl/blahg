@@ -52,7 +52,7 @@ class Repository
 	 * @return array
 	 */
 
-	public function getList()
+	public function getAll()
 	{
 		return $this->_List;
 	}
