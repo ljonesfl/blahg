@@ -8,14 +8,14 @@ the actual article written in markdown.
 
 Example: 10-reasons-broccoli.yaml
 
-title: 10 Reasons Why I Love Broccoli
-slug: 10-reasons-why-i-love-broccoli
-datePublished: "2018-12-27"
-category: Food
-tags:
-- broccoli
-- food
-path: 10-reasons-broccoli.md
+title: 10 Reasons Why I Love Broccoli<br>
+slug: 10-reasons-why-i-love-broccoli<br>
+datePublished: "2018-12-27"<br>
+category: Food<br>
+tags:<br>
+- broccoli<br>
+- food<br>
+path: 10-reasons-broccoli.md<br>
 
 ## Usage
 
