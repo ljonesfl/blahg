@@ -1,3 +1,5 @@
+## 0.0.5
+
 ## 0.0.4 2019-07-18
 
 * Added Max parameter to Repository::getAll()
