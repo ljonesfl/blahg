@@ -52,8 +52,13 @@ class Repository
 	 * @return array
 	 */
 
-	public function getAll()
+	public function getAll( int $Max = 0 )
 	{
+		if( $Max )
+		{
+			return array_slice( $this->_List, 0, $Max );
+		}
+
 		return $this->_List;
 	}
 

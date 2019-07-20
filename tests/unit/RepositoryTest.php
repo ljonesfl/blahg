@@ -43,6 +43,19 @@ class RepositoryTest extends PHPUnit\Framework\TestCase
 			$this->Repo->getAll()
 		);
 	}
+	
+	public function testGetAllWithmax()
+	{
+		$this->assertEquals(
+			count( $this->Repo->getAll( 1 ) ),
+			1
+		);
+
+       $this->assertEquals(
+            count( $this->Repo->getAll( 2 ) ),
+            2
+        );
+	}
 
 	public function testAllGetByTag()
 	{
