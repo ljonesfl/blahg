@@ -19,6 +19,20 @@ path: 10-reasons-broccoli.md<br>
 
 ## Usage
 
+### Installation
+
+The best way to install blagh is via [Composer](http://getcomposer.org)
+
+The package is located [here](https://packagist.org/packages/ljonesfl/blahg)
+
+Install Composer
+
+    curl -sS https://getcomposer.org/installer | php
+
+Add the Notion Package
+
+    php composer.phar require ljonesfl/blagh
+
 ### Setup
 ```
 $Blog = new Blagh/Repository( '/blog' );
