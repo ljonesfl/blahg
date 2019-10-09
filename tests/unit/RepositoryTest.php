@@ -93,4 +93,17 @@ class RepositoryTest extends PHPUnit\Framework\TestCase
 		);
 	}
 
+	public function testFeed()
+    {
+        $this->assertContains(
+            'CDATA',
+            $this->Repo->getFeed(
+            'Test',
+            'Mah blagh',
+            'http://me.blagh',
+            'http://me.blagh/blagh',
+            $this->Repo->getAll()
+            )
+        );
+    }
 }

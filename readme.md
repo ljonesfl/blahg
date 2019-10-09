@@ -1,6 +1,6 @@
 # Blahg
 
-Created so that I can write blog articles in vi using md.
+Created so that I can write blog articles in vi using markdown.
 Each article consists of 2 files, a descriptor written in yaml and
 the actual article written in markdown.
 
@@ -15,13 +15,14 @@ category: Food<br>
 tags:<br>
 - broccoli<br>
 - food<br>
+
 path: 10-reasons-broccoli.md<br>
 
 ## Usage
 
 ### Installation
 
-The best way to install blagh is via [Composer](http://getcomposer.org)
+The best way to install blahg is via [Composer](http://getcomposer.org)
 
 The package is located [here](https://packagist.org/packages/ljonesfl/blahg)
 
@@ -29,13 +30,13 @@ Install Composer
 
     curl -sS https://getcomposer.org/installer | php
 
-Add the Notion Package
+Install the Package
 
-    php composer.phar require ljonesfl/blagh
+    php composer.phar require ljonesfl/blahg
 
 ### Setup
 ```
-$Blog = new Blagh/Repository( '/blog' );
+$Blog = new Blagh/Repository( '/blahg' );
 $Articles = $Blog->getList();
 ```        
 ### Render List

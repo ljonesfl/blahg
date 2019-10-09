@@ -4,7 +4,22 @@ namespace Blahg;
 
 use Blahg\Exception\ArticleMissingBody;
 use Blahg\Exception\ArticleNotFound;
+use Suin\RSSWriter\Channel;
+use Suin\RSSWriter\Feed;
+use Suin\RSSWriter\Item;
 use Symfony\Component\Yaml\Yaml;
+
+function ArticleCmp( $ArticleA, $ArticleB )
+{
+    $TimeA = strtotime( $ArticleA->getDatePublished() );
+    $TimeB = strtotime( $ArticleB->getDatePublished() );
+
+    if( $TimeA == $TimeB )
+    {
+        return 0;
+    }
+    return ( $TimeA < $TimeB ) ? -1 : 1;
+}
 
 class Repository
 {
@@ -20,6 +35,11 @@ class Repository
 		$this->_Root = $Dir;
 
 		$Files = scandir( $Dir );
+
+		if( !is_array( $Files ) )
+		{
+			return;
+		}
 
 		foreach( $Files as $key => $File )
 		{
@@ -42,17 +62,17 @@ class Repository
 				continue;
 			}
 
-			$this->_List[ strtotime( $Article->getDatePublished() ) ] = $Article;
+			$this->_List[] = $Article;
 		}
 
-		krsort( $this->_List );
+		usort( $this->_List, 'Blahg\ArticleCmp' );
 	}
 
-	/**
-	 * @return array
-	 */
-
-	public function getAll( int $Max = 0 )
+    /**
+     * @param int $Max
+     * @return array
+     */
+	public function getAll( int $Max = 0 ) : array
 	{
 		if( $Max )
 		{
@@ -138,4 +158,40 @@ class Repository
 		return $List;
 	}
 
+	public function getFeed( string $Name, string $Description, string $Url, string $FeedUrl, array $Articles ) : string
+    {
+        $Feed = new Feed();
+
+        $Channel = new Channel();
+
+        $Channel
+            ->title( $Name )
+            ->description( $Description)
+            ->url( $Url )
+            ->feedUrl( $FeedUrl )
+            ->language( 'en-US' )
+            ->pubDate( time() )
+            ->ttl( 60 )
+            ->appendTo( $Feed );
+
+        foreach( $Articles as $Data )
+        {
+            $Article = $this->getArticleBySlug( $Data->getSlug() );
+
+            $Item = new Item();
+
+            $Link = $Url.'/blahg/'.$Article->getSlug();
+            $Item
+                ->title( $Article->getTitle() )
+                ->description( $Article->getBodyHtml() )
+                ->contentEncoded( $Article->getBodyHtml() )
+                ->url( $Link )
+                ->pubDate( strtotime( $Article->getDatePublished() ) )
+                ->guid( $Link, true )
+                ->preferCdata( true )
+                ->appendTo( $Channel );
+        }
+
+        return $Feed->render();
+    }
 }

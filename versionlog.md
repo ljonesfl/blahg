@@ -1,4 +1,9 @@
-## 0.0.5
+## 0.0.5 2019-10-09
+
+* Updated sorting to support more than one article per day.
+* Added error checking for scandir.
+* Articles can now return html from the markdown body.
+* Added an RSS feed.
 
 ## 0.0.4 2019-07-18
 
