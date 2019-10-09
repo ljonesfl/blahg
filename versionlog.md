@@ -1,3 +1,6 @@
+## 0.0.6 2019-10-09
+* Updated sort order.
+
 ## 0.0.5 2019-10-09
 
 * Updated sorting to support more than one article per day.

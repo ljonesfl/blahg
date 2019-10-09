@@ -18,7 +18,7 @@ function ArticleCmp( $ArticleA, $ArticleB )
     {
         return 0;
     }
-    return ( $TimeA < $TimeB ) ? -1 : 1;
+    return ( $TimeB < $TimeA ) ? -1 : 1;
 }
 
 class Repository
