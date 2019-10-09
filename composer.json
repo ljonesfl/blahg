@@ -20,7 +20,8 @@
   },
   "require": {
     "php": "7.2.*",
-    "queirozfcom/php-markdown-with-syntax-highlight": "1.4.x-dev",
-    "symfony/yaml": "^4.3@dev"
+    "queirozfcom/php-markdown-with-syntax-highlight": "^1.4",
+    "symfony/yaml": "^4.3@dev",
+    "suin/php-rss-writer": "^1.6"
   }
 }

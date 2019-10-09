@@ -3,6 +3,7 @@
 namespace Blahg;
 
 use Blahg\Exception\ArticleMissingBody;
+use Michelf\Markdown;
 
 class Article
 {
@@ -57,6 +58,14 @@ class Article
 	{
 		return $this->_Body;
 	}
+
+    /**
+     * @return string
+     */
+	public function getBodyHtml() : string
+    {
+        return Markdown::defaultTransform( $this->_Body );
+    }
 
 	/**
 	 * @param mixed $Text
