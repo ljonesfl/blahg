@@ -106,4 +106,30 @@ class RepositoryTest extends PHPUnit\Framework\TestCase
             )
         );
     }
+
+    public function testDrafts()
+    {
+        $this->Repo = new Repository( 'example', true );
+
+        $this->assertNotNull(
+            $this->Repo->getArticleBySlug( 'test-draft' )
+        );
+    }
+
+    public function testNoDrafts()
+    {
+        $Found = true;
+
+        try
+        {
+            $this->Repo->getArticleBySlug( 'test-draft' );
+        }
+        catch( ArticleNotFound $Exception )
+        {
+            $Found = false;
+        }
+
+        $this->assertFalse( $Found );
+    }
+
 }

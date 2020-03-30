@@ -1,5 +1,6 @@
 ## 0.0.7
-
+* Added the draft attribute to articles.
+* Added the ability to filter out drafts to the repo.
 ## 0.0.6 2019-10-09
 * Updated sort order.
 

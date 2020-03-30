@@ -25,14 +25,18 @@ class Repository
 {
 	private $_List = array();
 	private $_Root;
+	private $_ShowDrafts;
 
-	/**
-	 * @param $Dir
-	 */
-
-	public function __construct( string $Dir )
+    /**
+     * Repository constructor.
+     * @param string $Dir
+     * @param bool $ShowDrafts
+     */
+	public function __construct( string $Dir, $ShowDrafts = false )
 	{
 		$this->_Root = $Dir;
+
+		$this->setShowDrafts( $ShowDrafts );
 
 		$Files = scandir( $Dir );
 
@@ -57,16 +61,57 @@ class Repository
 
 			$Article = $this->loadArticle( $Path );
 
-			if( strtotime( $Article->getDatePublished() ) > time() )
-			{
-				continue;
-			}
+			if( !$this->shouldDisplay( $Article ) )
+            {
+                continue;
+            }
 
 			$this->_List[] = $Article;
 		}
 
 		usort( $this->_List, 'Blahg\ArticleCmp' );
 	}
+
+    /**
+     * @return mixed
+     */
+    public function getShowDrafts()
+    {
+        return $this->_ShowDrafts;
+    }
+
+    /**
+     * @param mixed $ShowDrafts
+     * @return Repository
+     */
+    public function setShowDrafts( bool $ShowDrafts )
+    {
+        $this->_ShowDrafts = $ShowDrafts;
+        return $this;
+    }
+
+    /**
+     * @param Article $Article
+     * @return bool
+     *
+     * Test whether an article should be visible or not.
+     */
+    public function shouldDisplay( Article $Article ) : bool
+    {
+        $Display = true;
+
+        if( !$this->getShowDrafts() && $Article->getDraft() )
+        {
+            $Display = false;
+        }
+
+        if( strtotime( $Article->getDatePublished() ) > time() )
+        {
+            $Display = false;
+        }
+
+        return $Display;
+    }
 
     /**
      * @param int $Max
@@ -94,6 +139,11 @@ class Repository
 		$Article->setBodyPath( $File[ 'path' ] );
 		$Article->setTags( $File[ 'tags' ] );
 		$Article->setCategory( $File[ 'category' ] );
+
+		if( isset( $File[ 'draft' ] ) )
+        {
+            $Article->setDraft( $File[ 'draft' ] );
+        }
 
 		return $Article;
 	}
