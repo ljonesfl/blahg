@@ -14,6 +14,25 @@ class Article
 	private $_Tags;
 	private $_BodyPath;
 	private $_Body;
+	private $_Draft = false;
+
+    /**
+     * @return mixed
+     */
+    public function getDraft()
+    {
+        return $this->_Draft;
+    }
+
+    /**
+     * @param mixed $Draft
+     * @return Article
+     */
+    public function setDraft( $Draft )
+    {
+        $this->_Draft = $Draft;
+        return $this;
+    }
 
 	/**
 	 * @return mixed
