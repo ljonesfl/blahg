@@ -3,6 +3,7 @@
 namespace Blahg;
 
 use Blahg\Exception\ArticleMissingBody;
+use League\CommonMark\GithubFlavoredMarkdownConverter;
 use Michelf\Markdown;
 
 class Article
@@ -83,7 +84,14 @@ class Article
      */
 	public function getBodyHtml() : string
     {
-        return Markdown::defaultTransform( $this->_Body );
+		 $Converter = new GithubFlavoredMarkdownConverter(
+		 	[
+		 		'html_input' => 'strip',
+				'allow_unsafe_links' => false,
+			]
+		 );
+
+		 return $Converter->convertToHtml( $this->_Body );
     }
 
 	/**
