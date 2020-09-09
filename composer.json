@@ -19,9 +19,9 @@
     "phpunit/phpunit"               : "7.*"
   },
   "require": {
-    "php": "7.2.*",
-    "queirozfcom/php-markdown-with-syntax-highlight": "^1.4",
+    "php": "7.4.*",
     "symfony/yaml": "^4.3@dev",
-    "suin/php-rss-writer": "^1.6"
+    "suin/php-rss-writer": "^1.6",
+    "league/commonmark": "^1.5"
   }
 }
