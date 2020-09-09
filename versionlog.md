@@ -1,4 +1,6 @@
-## 0.0.8
+## 0.0.8 2020-09-09
+* Now uses github flavored markdown.
+* PHP74
 
 ## 0.0.7 2020-03-30
 * Added the draft attribute to articles.
