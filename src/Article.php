@@ -8,32 +8,51 @@ use Michelf\Markdown;
 
 class Article
 {
-	private $_Slug;
-	private $_Title;
-	private $_DatePublished;
-	private $_Category;
-	private $_Tags;
-	private $_BodyPath;
-	private $_Body;
-	private $_Draft = false;
+	private string $_Slug;
+	private string $_Title;
+	private string $_Description = "";
+	private string $_DatePublished;
+	private string $_Category;
+	private array  $_Tags;
+	private string $_BodyPath;
+	private string $_Body;
+	private bool   $_Draft = false;
 
-    /**
-     * @return mixed
-     */
-    public function getDraft()
-    {
-        return $this->_Draft;
-    }
+	/**
+	 * @return string
+	 */
+	public function getDescription(): string
+	{
+		return $this->_Description;
+	}
 
-    /**
-     * @param mixed $Draft
-     * @return Article
-     */
-    public function setDraft( $Draft )
-    {
-        $this->_Draft = $Draft;
-        return $this;
-    }
+	/**
+	 * @param string $Description
+	 * @return Article
+	 */
+	public function setDescription( string $Description ): Article
+	{
+		$this->_Description = $Description;
+		return $this;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getDraft()
+	{
+		return $this->_Draft;
+	}
+
+	/**
+	 * @param mixed $Draft
+	 * @return Article
+	 */
+	public function setDraft( $Draft )
+	{
+		$this->_Draft = $Draft;
+		return $this;
+	}
 
 	/**
 	 * @return mixed
@@ -56,7 +75,7 @@ class Article
 	/**
 	 * @return mixed
 	 */
-	public function getBodyPath() : string
+	public function getBodyPath(): string
 	{
 		return $this->_BodyPath;
 	}
@@ -65,7 +84,7 @@ class Article
 	 * @param mixed $BodyPath
 	 * @return Article
 	 */
-	public function setBodyPath( string $BodyPath ) : Article
+	public function setBodyPath( string $BodyPath ): Article
 	{
 		$this->_BodyPath = $BodyPath;
 		return $this;
@@ -74,31 +93,29 @@ class Article
 	/**
 	 * @return mixed
 	 */
-	public function getBody() : string
+	public function getBody(): string
 	{
 		return $this->_Body;
 	}
 
-    /**
-     * @return string
-     */
-	public function getBodyHtml() : string
-    {
-		 $Converter = new GithubFlavoredMarkdownConverter(
-		 	[
-		 		'html_input' => 'strip',
-				'allow_unsafe_links' => false,
-			]
-		 );
+	/**
+	 * @return string
+	 */
+	public function getBodyHtml(): string
+	{
+		$Converter = new GithubFlavoredMarkdownConverter( [
+																			  'html_input'         => 'strip',
+																			  'allow_unsafe_links' => false,
+																		  ] );
 
-		 return $Converter->convertToHtml( $this->_Body );
-    }
+		return $Converter->convertToHtml( $this->_Body );
+	}
 
 	/**
 	 * @param mixed $Text
 	 * @return Article
 	 */
-	public function setBody( string $Text ) : Article
+	public function setBody( string $Text ): Article
 	{
 		$this->_Body = $Text;
 		return $this;
@@ -107,7 +124,7 @@ class Article
 	/**
 	 * @return mixed
 	 */
-	public function getTitle() : string
+	public function getTitle(): string
 	{
 		return $this->_Title;
 	}
@@ -116,7 +133,7 @@ class Article
 	 * @param mixed $Title
 	 * @return Article
 	 */
-	public function setTitle( string $Title ) : Article
+	public function setTitle( string $Title ): Article
 	{
 		$this->_Title = $Title;
 		return $this;
@@ -125,7 +142,7 @@ class Article
 	/**
 	 * @return mixed
 	 */
-	public function getDatePublished() : string
+	public function getDatePublished(): string
 	{
 		return $this->_DatePublished;
 	}
@@ -134,7 +151,7 @@ class Article
 	 * @param mixed $DatePublished
 	 * @return Article
 	 */
-	public function setDatePublished( string $DatePublished ) : Article
+	public function setDatePublished( string $DatePublished ): Article
 	{
 		$this->_DatePublished = $DatePublished;
 		return $this;
@@ -143,7 +160,7 @@ class Article
 	/**
 	 * @return mixed
 	 */
-	public function getCategory() : string
+	public function getCategory(): string
 	{
 		return $this->_Category;
 	}
@@ -152,7 +169,7 @@ class Article
 	 * @param mixed $Category
 	 * @return Article
 	 */
-	public function setCategory( string $Category ) : Article
+	public function setCategory( string $Category ): Article
 	{
 		$this->_Category = $Category;
 		return $this;
@@ -161,7 +178,7 @@ class Article
 	/**
 	 * @return mixed
 	 */
-	public function getTags() : array
+	public function getTags(): array
 	{
 		return $this->_Tags;
 	}
@@ -170,7 +187,7 @@ class Article
 	 * @param mixed $Tags
 	 * @return Article
 	 */
-	public function setTags( array $Tags ) : Article
+	public function setTags( array $Tags ): Article
 	{
 		$this->_Tags = $Tags;
 		return $this;
@@ -180,7 +197,7 @@ class Article
 	 * @param string $Target
 	 * @return bool
 	 */
-	public function hasTag( string $Target ) : bool
+	public function hasTag( string $Target ): bool
 	{
 		foreach( $this->_Tags as $Tag )
 		{
@@ -197,7 +214,7 @@ class Article
 	 * @param string $Root
 	 * @throws ArticleMissingBody
 	 */
-	public function loadBody( string $Root ) : void
+	public function loadBody( string $Root ): void
 	{
 		$File = $Root . '/' . $this->getBodyPath();
 

@@ -11,14 +11,14 @@ use Symfony\Component\Yaml\Yaml;
 
 function ArticleCmp( $ArticleA, $ArticleB )
 {
-    $TimeA = strtotime( $ArticleA->getDatePublished() );
-    $TimeB = strtotime( $ArticleB->getDatePublished() );
+	$TimeA = strtotime( $ArticleA->getDatePublished() );
+	$TimeB = strtotime( $ArticleB->getDatePublished() );
 
-    if( $TimeA == $TimeB )
-    {
-        return 0;
-    }
-    return ( $TimeB < $TimeA ) ? -1 : 1;
+	if( $TimeA == $TimeB )
+	{
+		return 0;
+	}
+	return ( $TimeB < $TimeA ) ? -1 : 1;
 }
 
 class Repository
@@ -27,11 +27,11 @@ class Repository
 	private $_Root;
 	private $_ShowDrafts;
 
-    /**
-     * Repository constructor.
-     * @param string $Dir
-     * @param bool $ShowDrafts
-     */
+	/**
+	 * Repository constructor.
+	 * @param string $Dir
+	 * @param bool $ShowDrafts
+	 */
 	public function __construct( string $Dir, $ShowDrafts = false )
 	{
 		$this->_Root = $Dir;
@@ -57,14 +57,14 @@ class Repository
 				continue;
 			}
 
-			$Path = $Dir.'/'.$File;
+			$Path = $Dir . '/' . $File;
 
 			$Article = $this->loadArticle( $Path );
 
 			if( !$this->shouldDisplay( $Article ) )
-            {
-                continue;
-            }
+			{
+				continue;
+			}
 
 			$this->_List[] = $Article;
 		}
@@ -72,52 +72,52 @@ class Repository
 		usort( $this->_List, 'Blahg\ArticleCmp' );
 	}
 
-    /**
-     * @return mixed
-     */
-    public function getShowDrafts()
-    {
-        return $this->_ShowDrafts;
-    }
+	/**
+	 * @return mixed
+	 */
+	public function getShowDrafts()
+	{
+		return $this->_ShowDrafts;
+	}
 
-    /**
-     * @param mixed $ShowDrafts
-     * @return Repository
-     */
-    public function setShowDrafts( bool $ShowDrafts )
-    {
-        $this->_ShowDrafts = $ShowDrafts;
-        return $this;
-    }
+	/**
+	 * @param mixed $ShowDrafts
+	 * @return Repository
+	 */
+	public function setShowDrafts( bool $ShowDrafts )
+	{
+		$this->_ShowDrafts = $ShowDrafts;
+		return $this;
+	}
 
-    /**
-     * @param Article $Article
-     * @return bool
-     *
-     * Test whether an article should be visible or not.
-     */
-    public function shouldDisplay( Article $Article ) : bool
-    {
-        $Display = true;
+	/**
+	 * @param Article $Article
+	 * @return bool
+	 *
+	 * Test whether an article should be visible or not.
+	 */
+	public function shouldDisplay( Article $Article ): bool
+	{
+		$Display = true;
 
-        if( !$this->getShowDrafts() && $Article->getDraft() )
-        {
-            $Display = false;
-        }
+		if( !$this->getShowDrafts() && $Article->getDraft() )
+		{
+			$Display = false;
+		}
 
-        if( strtotime( $Article->getDatePublished() ) > time() )
-        {
-            $Display = false;
-        }
+		if( strtotime( $Article->getDatePublished() ) > time() )
+		{
+			$Display = false;
+		}
 
-        return $Display;
-    }
+		return $Display;
+	}
 
-    /**
-     * @param int $Max
-     * @return array
-     */
-	public function getAll( int $Max = 0 ) : array
+	/**
+	 * @param int $Max
+	 * @return array
+	 */
+	public function getAll( int $Max = 0 ): array
 	{
 		if( $Max )
 		{
@@ -127,7 +127,7 @@ class Repository
 		return $this->_List;
 	}
 
-	protected function loadArticle( string $FileName ) : Article
+	protected function loadArticle( string $FileName ): Article
 	{
 		$File = Yaml::parseFile( $FileName );
 
@@ -140,10 +140,15 @@ class Repository
 		$Article->setTags( $File[ 'tags' ] );
 		$Article->setCategory( $File[ 'category' ] );
 
+		if( isset( $File[ 'description' ] ) )
+		{
+			$Article->setDescription( $File[ 'description' ] );
+		}
+
 		if( isset( $File[ 'draft' ] ) )
-        {
-            $Article->setDraft( $File[ 'draft' ] );
-        }
+		{
+			$Article->setDraft( $File[ 'draft' ] );
+		}
 
 		return $Article;
 	}
@@ -156,7 +161,7 @@ class Repository
 	 * @throws ArticleMissingBody
 	 */
 
-	public function getArticleBySlug( string $Slug ) : Article
+	public function getArticleBySlug( string $Slug ): Article
 	{
 		foreach( $this->_List as $Article )
 		{
@@ -174,7 +179,7 @@ class Repository
 	 * @param string $Tag
 	 * @return array
 	 */
-	public function getAllByTag( string $Tag ) : array
+	public function getAllByTag( string $Tag ): array
 	{
 		$List = [];
 
@@ -193,7 +198,7 @@ class Repository
 	 * @param string $Category
 	 * @return array
 	 */
-	public function getAllByCategory( string $Category ) : array
+	public function getAllByCategory( string $Category ): array
 	{
 		$List = [];
 
@@ -208,40 +213,38 @@ class Repository
 		return $List;
 	}
 
-	public function getFeed( string $Name, string $Description, string $Url, string $FeedUrl, array $Articles ) : string
-    {
-        $Feed = new Feed();
+	public function getFeed( string $Name, string $Description, string $Url, string $FeedUrl, array $Articles ): string
+	{
+		$Feed = new Feed();
 
-        $Channel = new Channel();
+		$Channel = new Channel();
 
-        $Channel
-            ->title( $Name )
-            ->description( $Description)
-            ->url( $Url )
-            ->feedUrl( $FeedUrl )
-            ->language( 'en-US' )
-            ->pubDate( time() )
-            ->ttl( 60 )
-            ->appendTo( $Feed );
+		$Channel->title( $Name )
+				  ->description( $Description )
+				  ->url( $Url )
+				  ->feedUrl( $FeedUrl )
+				  ->language( 'en-US' )
+				  ->pubDate( time() )
+				  ->ttl( 60 )
+				  ->appendTo( $Feed );
 
-        foreach( $Articles as $Data )
-        {
-            $Article = $this->getArticleBySlug( $Data->getSlug() );
+		foreach( $Articles as $Data )
+		{
+			$Article = $this->getArticleBySlug( $Data->getSlug() );
 
-            $Item = new Item();
+			$Item = new Item();
 
-            $Link = $Url.'/blahg/'.$Article->getSlug();
-            $Item
-                ->title( $Article->getTitle() )
-                ->description( $Article->getBodyHtml() )
-                ->contentEncoded( $Article->getBodyHtml() )
-                ->url( $Link )
-                ->pubDate( strtotime( $Article->getDatePublished() ) )
-                ->guid( $Link, true )
-                ->preferCdata( true )
-                ->appendTo( $Channel );
-        }
+			$Link = $Url . '/blahg/' . $Article->getSlug();
+			$Item->title( $Article->getTitle() )
+				  ->description( $Article->getBodyHtml() )
+				  ->contentEncoded( $Article->getBodyHtml() )
+				  ->url( $Link )
+				  ->pubDate( strtotime( $Article->getDatePublished() ) )
+				  ->guid( $Link, true )
+				  ->preferCdata( true )
+				  ->appendTo( $Channel );
+		}
 
-        return $Feed->render();
-    }
+		return $Feed->render();
+	}
 }
