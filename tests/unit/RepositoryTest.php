@@ -21,6 +21,13 @@ class RepositoryTest extends PHPUnit\Framework\TestCase
 		);
 	}
 
+	public function testDescription()
+	{
+		$this->assertNotNull(
+			$this->Repo->getArticleBySlug( 'test-blog' )->getDescription()
+		);
+	}
+
 	public function testGetArticleBySlugFail()
 	{
 		$Found = true;
@@ -131,5 +138,4 @@ class RepositoryTest extends PHPUnit\Framework\TestCase
 
         $this->assertFalse( $Found );
     }
-
 }
