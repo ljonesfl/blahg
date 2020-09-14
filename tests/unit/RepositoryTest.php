@@ -23,8 +23,17 @@ class RepositoryTest extends PHPUnit\Framework\TestCase
 
 	public function testDescription()
 	{
-		$this->assertNotNull(
+		$this->assertContains(
+			"article",
 			$this->Repo->getArticleBySlug( 'test-blog' )->getDescription()
+		);
+	}
+
+	public function testCanonicalUrl()
+	{
+		$this->assertContains(
+			"original",
+			$this->Repo->getArticleBySlug( 'test-blog' )->getCanonicalUrl()
 		);
 	}
 

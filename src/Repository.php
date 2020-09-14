@@ -150,6 +150,11 @@ class Repository
 			$Article->setDraft( $File[ 'draft' ] );
 		}
 
+		if( isset( $File[ 'canonicalUrl' ] ) )
+		{
+			$Article->setCanonicalUrl( $File[ 'canonicalUrl' ] );
+		}
+
 		return $Article;
 	}
 

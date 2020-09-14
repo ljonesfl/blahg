@@ -12,11 +12,30 @@ class Article
 	private string $_Title;
 	private string $_Description = "";
 	private string $_DatePublished;
-	private string $_Category;
+	private string $_Category = "";
 	private array  $_Tags;
 	private string $_BodyPath;
 	private string $_Body;
 	private bool   $_Draft = false;
+	private string $_CanonicalUrl = "";
+
+	/**
+	 * @return string
+	 */
+	public function getCanonicalUrl(): string
+	{
+		return $this->_CanonicalUrl;
+	}
+
+	/**
+	 * @param string $CanonicalUrl
+	 * @return Article
+	 */
+	public function setCanonicalUrl( string $CanonicalUrl ): Article
+	{
+		$this->_CanonicalUrl = $CanonicalUrl;
+		return $this;
+	}
 
 	/**
 	 * @return string

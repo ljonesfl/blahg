@@ -1,6 +1,8 @@
 title: Test Blog
 slug: test-blog
 datePublished: "2019-07-18"
+description: This is a test article and says things about broccoli.
+canonicalUrl: http://www.original.com
 category: Food
 tags:
   - broccoli

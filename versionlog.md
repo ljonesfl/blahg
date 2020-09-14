@@ -1,4 +1,5 @@
 ## 0.0.10
+* Added canonicalUrl to articles.
 
 ## 0.0.9 2020-09-10
 * Added description to articles to support meta-description.
