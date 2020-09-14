@@ -1,3 +1,5 @@
+## 0.0.11
+
 ## 0.0.10 2020-09-14
 * Added canonicalUrl to articles.
 
