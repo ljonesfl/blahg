@@ -29,6 +29,17 @@ class RepositoryTest extends PHPUnit\Framework\TestCase
 		);
 	}
 
+	public function testAuthor()
+	{
+		$Article = $this->Repo->getArticleBySlug( 'test-blog' );
+		$Author  = $Article->getAuthor();
+
+		$this->assertContains(
+			"Lee Jones",
+			$Author
+		);
+	}
+
 	public function testCanonicalUrl()
 	{
 		$this->assertContains(

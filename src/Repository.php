@@ -23,9 +23,9 @@ function ArticleCmp( $ArticleA, $ArticleB )
 
 class Repository
 {
-	private $_List = array();
-	private $_Root;
-	private $_ShowDrafts;
+	private array $_List = array();
+	private string $_Root;
+	private bool $_ShowDrafts;
 
 	/**
 	 * Repository constructor.
@@ -75,7 +75,7 @@ class Repository
 	/**
 	 * @return mixed
 	 */
-	public function getShowDrafts()
+	public function getShowDrafts() : bool
 	{
 		return $this->_ShowDrafts;
 	}
@@ -155,6 +155,11 @@ class Repository
 			$Article->setCanonicalUrl( $File[ 'canonicalUrl' ] );
 		}
 
+		if( isset( $File[ 'author' ] ) )
+		{
+			$Article->setAuthor( $File[ 'author' ] );
+		}
+
 		return $Article;
 	}
 
@@ -210,6 +215,27 @@ class Repository
 		foreach( $this->_List as $Article )
 		{
 			if( $Article->getCategory() == $Category )
+			{
+				$List[] = $Article;
+			}
+		}
+
+		return $List;
+	}
+
+	/**
+	 * Gets all articles with an author field that contains any of the specified text.
+	 *
+	 * @param string $Author
+	 * @return array
+	 */
+	public function getAllByAuthor( string $Author ): array
+	{
+		$List = [];
+
+		foreach( $this->_List as $Article )
+		{
+			if( strstr( $Article->getAuthor(), $Author ) )
 			{
 				$List[] = $Article;
 			}
