@@ -1,3 +1,6 @@
+## 0.0.11 2020-09-26
+* Added author to articles.
+
 ## 0.0.10 2020-09-14
 * Added canonicalUrl to articles.
 

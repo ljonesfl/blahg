@@ -4,7 +4,6 @@ namespace Blahg;
 
 use Blahg\Exception\ArticleMissingBody;
 use League\CommonMark\GithubFlavoredMarkdownConverter;
-use Michelf\Markdown;
 
 class Article
 {
@@ -18,6 +17,25 @@ class Article
 	private string $_Body;
 	private bool   $_Draft = false;
 	private string $_CanonicalUrl = "";
+	private string $_Author = "";
+
+	/**
+	 * @return string
+	 */
+	public function getAuthor(): string
+	{
+		return $this->_Author;
+	}
+
+	/**
+	 * @param string $Author
+	 * @return Article
+	 */
+	public function setAuthor( string $Author ): Article
+	{
+		$this->_Author = $Author;
+		return $this;
+	}
 
 	/**
 	 * @return string
