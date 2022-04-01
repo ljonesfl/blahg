@@ -7,7 +7,7 @@ class RepositoryTest extends PHPUnit\Framework\TestCase
 {
 	public $Repo;
 
-	protected function setUp()
+	protected function setUp() : void
 	{
 		parent::setUp();
 
@@ -23,7 +23,7 @@ class RepositoryTest extends PHPUnit\Framework\TestCase
 
 	public function testDescription()
 	{
-		$this->assertContains(
+		$this->assertStringContainsString(
 			"article",
 			$this->Repo->getArticleBySlug( 'test-blog' )->getDescription()
 		);
@@ -34,7 +34,7 @@ class RepositoryTest extends PHPUnit\Framework\TestCase
 		$Article = $this->Repo->getArticleBySlug( 'test-blog' );
 		$Author  = $Article->getAuthor();
 
-		$this->assertContains(
+		$this->assertStringContainsString(
 			"Lee Jones",
 			$Author
 		);
@@ -42,7 +42,7 @@ class RepositoryTest extends PHPUnit\Framework\TestCase
 
 	public function testCanonicalUrl()
 	{
-		$this->assertContains(
+		$this->assertStringContainsString(
 			"original",
 			$this->Repo->getArticleBySlug( 'test-blog' )->getCanonicalUrl()
 		);
@@ -122,7 +122,7 @@ class RepositoryTest extends PHPUnit\Framework\TestCase
 
 	public function testFeed()
     {
-        $this->assertContains(
+        $this->assertStringContainsString(
             'CDATA',
             $this->Repo->getFeed(
             'Test',

@@ -1,4 +1,5 @@
 ## 0.0.12
+* Updated php version.
 
 ## 0.0.11 2020-09-26
 * Added author to articles.
