@@ -1,4 +1,5 @@
 ## 0.0.13
+* Updated php version.
 
 ## 0.0.12 2022-04-01
 * Updated php version.
