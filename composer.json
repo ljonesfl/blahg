@@ -21,7 +21,7 @@
   "require": {
     "php": "8.1.*",
     "suin/php-rss-writer": "^1.6",
-    "league/commonmark": "^1.5",
+    "league/commonmark": "^2.0",
     "symfony/yaml": "^6.4"
   }
 }

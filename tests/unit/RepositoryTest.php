@@ -1,4 +1,5 @@
 <?php
+error_reporting(E_ALL & ~E_DEPRECATED);
 
 use Blahg\Repository;
 use Blahg\Exception\ArticleNotFound;
@@ -121,18 +122,21 @@ class RepositoryTest extends PHPUnit\Framework\TestCase
 	}
 
 	public function testFeed()
-    {
-        $this->assertStringContainsString(
-            'CDATA',
-            $this->Repo->getFeed(
-            'Test',
-            'Mah blagh',
-            'http://me.blagh',
-            'http://me.blagh/blagh',
-            $this->Repo->getAll()
-            )
-        );
-    }
+	{
+		$Feed = $this->Repo->getFeed(
+			'Test',
+			'Mah blagh',
+			'http://me.blagh',
+			'http://me.blagh/blagh',
+			$this->Repo->getAll()
+		);
+
+
+		$this->assertStringContainsString(
+			'CDATA',
+			$Feed
+		);
+ 	}
 
     public function testDrafts()
     {
