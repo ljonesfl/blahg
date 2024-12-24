@@ -145,7 +145,7 @@ class Article
 																			  'allow_unsafe_links' => false,
 																		  ] );
 
-		return $Converter->convertToHtml( $this->_Body );
+		return $Converter->convert( $this->_Body );
 	}
 
 	/**
