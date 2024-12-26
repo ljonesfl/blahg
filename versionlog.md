@@ -1,3 +1,5 @@
+## 0.0.18
+
 ## 0.0.17 2024-12-26
 * Added githubflawored setting to articles to change the markdown processing.
 
