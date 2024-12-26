@@ -1,3 +1,5 @@
+## 0.0.17
+
 ## 0.0.16 2024-12-26
 * Removed strip html from markdown processing.
 
