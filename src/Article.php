@@ -3,7 +3,9 @@
 namespace Blahg;
 
 use Blahg\Exception\ArticleMissingBody;
+use League\CommonMark\CommonMarkConverter;
 use League\CommonMark\GithubFlavoredMarkdownConverter;
+use League\CommonMark\MarkdownConverter;
 
 class Article
 {
@@ -18,6 +20,18 @@ class Article
 	private bool   $_Draft = false;
 	private string $_CanonicalUrl = "";
 	private string $_Author = "";
+	private bool	$_GithubFlavored = false;
+
+	public function isGithubFlavored(): bool
+	{
+		return $this->_GithubFlavored;
+	}
+
+	public function setGithubFlavored( bool $GithubFlavored ): Article
+	{
+		$this->_GithubFlavored = $GithubFlavored;
+		return $this;
+	}
 
 	/**
 	 * @return string
@@ -140,11 +154,22 @@ class Article
 	 */
 	public function getBodyHtml(): string
 	{
-		$Converter = new GithubFlavoredMarkdownConverter(
-			[
-				'allow_unsafe_links' => false,
-			]
-		);
+		if( $this->isGithubFlavored() )
+		{
+			$Converter = new GithubFlavoredMarkdownConverter(
+				[
+					'allow_unsafe_links' => false,
+				]
+			);
+		}
+		else
+		{
+			$Converter = new CommonMarkConverter(
+				[
+					'allow_unsafe_links' => false,
+				]
+			);
+		}
 
 		return $Converter->convert( $this->_Body );
 	}
