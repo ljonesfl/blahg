@@ -140,6 +140,11 @@ class Repository
 		$Article->setTags( $File[ 'tags' ] );
 		$Article->setCategory( $File[ 'category' ] );
 
+		if( isset( $File[ 'githubFlavored' ] ) )
+		{
+			$Article->setGithubFlavored( $File[ 'githubFlavored' ] );
+		}
+
 		if( isset( $File[ 'description' ] ) )
 		{
 			$Article->setDescription( $File[ 'description' ] );
