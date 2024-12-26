@@ -22,6 +22,16 @@ class RepositoryTest extends PHPUnit\Framework\TestCase
 		);
 	}
 
+	public function testFootnotes()
+	{
+		$html = $this->Repo->getArticleBySlug( 'test-blog2' )->getBodyHtml();
+
+		$this->assertStringContainsString(
+			"footnote",
+			$html
+		);
+	}
+
 	public function testDescription()
 	{
 		$this->assertStringContainsString(

@@ -7,6 +7,10 @@ use League\CommonMark\CommonMarkConverter;
 use League\CommonMark\GithubFlavoredMarkdownConverter;
 use League\CommonMark\MarkdownConverter;
 
+use League\CommonMark\Environment\Environment;
+use League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension;
+use League\CommonMark\Extension\Footnote\FootnoteExtension;
+
 class Article
 {
 	private string $_Slug;
@@ -156,19 +160,11 @@ class Article
 	{
 		if( $this->isGithubFlavored() )
 		{
-			$Converter = new GithubFlavoredMarkdownConverter(
-				[
-					'allow_unsafe_links' => false,
-				]
-			);
+			$Converter = $this->getGithubFlavoredMarkdownConverter();
 		}
 		else
 		{
-			$Converter = new CommonMarkConverter(
-				[
-					'allow_unsafe_links' => false,
-				]
-			);
+			$Converter = $this->getCommonmarkConverter();
 		}
 
 		return $Converter->convert( $this->_Body );
@@ -287,5 +283,46 @@ class Article
 		}
 
 		$this->setBody( file_get_contents( $File ) );
+	}
+
+	/**
+	 * @return GithubFlavoredMarkdownConverter
+	 */
+	protected function getGithubFlavoredMarkdownConverter(): GithubFlavoredMarkdownConverter
+	{
+		return new GithubFlavoredMarkdownConverter(
+			[
+				'allow_unsafe_links' => false,
+			]
+		);
+	}
+
+	/**
+	 * @return MarkdownConverter
+	 */
+	protected function getCommonmarkConverter(): MarkdownConverter
+	{
+		$config = [
+			'footnote' => [
+				'backref_class'      => 'footnote-backref',
+				'backref_symbol'     => '↩',
+				'container_add_hr'   => true,
+				'container_class'    => 'footnotes',
+				'ref_class'          => 'footnote-ref',
+				'ref_id_prefix'      => 'fnref:',
+				'footnote_class'     => 'footnote',
+				'footnote_id_prefix' => 'fn:',
+			],
+		];
+
+		// Configure the Environment with all the CommonMark parsers/renderers
+		$environment = new Environment( $config );
+		$environment->addExtension( new CommonMarkCoreExtension() );
+
+		// Add the extension
+		$environment->addExtension( new FootnoteExtension() );
+
+		$Converter = new MarkdownConverter( $environment );
+		return $Converter;
 	}
 }
