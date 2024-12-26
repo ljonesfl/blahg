@@ -140,10 +140,11 @@ class Article
 	 */
 	public function getBodyHtml(): string
 	{
-		$Converter = new GithubFlavoredMarkdownConverter( [
-																			  'html_input'         => 'strip',
-																			  'allow_unsafe_links' => false,
-																		  ] );
+		$Converter = new GithubFlavoredMarkdownConverter(
+			[
+				'allow_unsafe_links' => false,
+			]
+		);
 
 		return $Converter->convert( $this->_Body );
 	}
