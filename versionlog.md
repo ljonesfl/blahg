@@ -1,6 +1,7 @@
-## 0.0.16
+## 0.0.16 2024-12-26
+* Removed strip html from markdown processing.
 
-## 0.0.15
+## 0.0.15 2024-12-24
 
 ## 0.0.14 2024-12-24
 * Updated commonmark version.
