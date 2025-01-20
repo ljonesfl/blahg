@@ -4,6 +4,7 @@ namespace Blahg;
 
 use Blahg\Exception\ArticleMissingBody;
 use League\CommonMark\CommonMarkConverter;
+use League\CommonMark\Exception\CommonMarkException;
 use League\CommonMark\GithubFlavoredMarkdownConverter;
 use League\CommonMark\MarkdownConverter;
 
@@ -155,6 +156,7 @@ class Article
 
 	/**
 	 * @return string
+	 * @throws CommonMarkException
 	 */
 	public function getBodyHtml(): string
 	{
