@@ -1,3 +1,6 @@
+## 0.0.19 2025-01-20
+* Updated php version.
+
 ## 0.0.18 2024-12-26
 * Added the footnotes extension to the markdown processing.
 
