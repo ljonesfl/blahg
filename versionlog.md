@@ -1,4 +1,5 @@
 ## 0.0.20
+* Updated php version.
 
 ## 0.0.19 2025-01-20
 * Updated php version.
@@ -7,7 +8,7 @@
 * Added the footnotes extension to the markdown processing.
 
 ## 0.0.17 2024-12-26
-* Added githubflawored setting to articles to change the markdown processing.
+* Added githubflavored setting to articles to change the markdown processing.
 
 ## 0.0.16 2024-12-26
 * Removed strip html from markdown processing.
