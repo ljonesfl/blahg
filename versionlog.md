@@ -1,4 +1,4 @@
-## 0.5.0
+## 0.5.0 2025-08-08
 
 * Housekeeping.
 * Added getTags, getAuthors, and getCategories to the repository.
