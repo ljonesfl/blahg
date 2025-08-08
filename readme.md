@@ -1,83 +1,253 @@
 # Blahg
 
-Created so that I can write blog articles in vi using markdown.
-Each article consists of 2 files, a descriptor written in yaml and
-the actual article written in markdown.
+A lightweight PHP library for creating blog applications with Markdown content and YAML metadata.
 
-## Descriptor
+## Features
 
-Example: 10-reasons-broccoli.yaml
+- **Markdown-based content** - Write articles in Markdown with GitHub-flavored markdown and footnote support
+- **YAML metadata** - Organize articles with YAML descriptors containing title, tags, categories, and more
+- **Draft management** - Control article visibility with draft status
+- **RSS feed generation** - Automatic RSS feed creation for your blog
+- **Flexible querying** - Filter articles by tag, category, author, or slug
+- **Future publishing** - Schedule articles with future publication dates
 
-title: 10 Reasons Why I Love Broccoli<br>
-slug: 10-reasons-why-i-love-broccoli<br>
-datePublished: "2018-12-27"<br>
-category: Food<br>
-tags:<br>
-- broccoli<br>
-- food<br>
+## Requirements
 
-path: 10-reasons-broccoli.md<br>
+- PHP 8.4 or higher
+- Composer
+
+## Installation
+
+Install via [Composer](http://getcomposer.org):
+
+```bash
+composer require ljonesfl/blahg
+```
 
 ## Usage
 
-### Installation
+### Basic Setup
 
-The best way to install blahg is via [Composer](http://getcomposer.org)
+```php
+use Blahg\Repository;
 
-The package is located [here](https://packagist.org/packages/ljonesfl/blahg)
+// Initialize repository with your content directory
+$repository = new Repository('/path/to/articles');
 
-Install Composer
-
-    curl -sS https://getcomposer.org/installer | php
-
-Install the Package
-
-    php composer.phar require ljonesfl/blahg
-
-### Setup
+// Get all published articles
+$articles = $repository->getArticles();
 ```
-$Blog = new Blagh/Repository( '/blahg' );
-$Articles = $Blog->getList();
-```        
-### Render List
+
+### Article Structure
+
+Each article consists of two files:
+
+1. **YAML descriptor** (e.g., `my-article.yaml`)
+2. **Markdown content** (e.g., `my-article.md`)
+
+#### YAML Descriptor Example
+
+```yaml
+title: "10 Reasons Why I Love Broccoli"
+slug: "10-reasons-why-i-love-broccoli"
+datePublished: "2018-12-27"
+category: "Food"
+author: "John Doe"
+description: "A deep dive into the wonderful world of broccoli"
+tags:
+  - broccoli
+  - vegetables
+  - nutrition
+path: "10-reasons-broccoli.md"
+draft: false
+githubFlavored: true
+canonicalUrl: "https://example.com/blog/10-reasons-why-i-love-broccoli"
 ```
-<h1>Blahgs</h1>
-<?php
-foreach( $Articles as $Article)
+
+#### Required Fields
+- `title` - Article title
+- `slug` - URL-friendly identifier
+- `datePublished` - Publication date (YYYY-MM-DD format)
+- `path` - Path to the Markdown content file
+
+#### Optional Fields
+- `category` - Article category
+- `tags` - Array of tags
+- `author` - Article author
+- `description` - Short description for meta tags
+- `draft` - Set to `true` to hide from public view
+- `githubFlavored` - Enable GitHub-flavored Markdown
+- `canonicalUrl` - Canonical URL for SEO
+
+### Retrieving Articles
+
+```php
+// Get all published articles (excludes drafts and future posts)
+$articles = $repository->getArticles();
+
+// Get a specific article by slug
+try 
 {
+    $article = $repository->getArticle('10-reasons-why-i-love-broccoli');
+} 
+catch( ArticleNotFound $e ) 
+{
+    // Handle missing article
+} 
+catch( ArticleMissingBody $e ) 
+{
+    // Handle missing content file
+}
+
+// Include drafts in results
+$repository->setShowDrafts( true );
+$allArticles = $repository->getArticles();
+```
+
+### Filtering Articles
+
+```php
+// Get articles by category
+$foodArticles = $repository->getArticlesByCategory( 'Food' );
+
+// Get articles by tag
+$broccoliArticles = $repository->getArticlesByTag( 'broccoli' );
+
+// Get articles by author
+$johnsArticles = $repository->getArticlesByAuthor( 'John Doe' );
+```
+
+### Getting Metadata
+
+```php
+// Get all unique categories
+$categories = $repository->getCategories();
+
+// Get all unique tags
+$tags = $repository->getTags();
+
+// Get all unique authors
+$authors = $repository->getAuthors();
+```
+
+### Rendering Articles
+
+#### Article List Example
+
+```php
+<h1>Blog Articles</h1>
+<?php foreach( $articles as $article ): ?>
+    <article>
+        <h2>
+            <a href="/blog/<?= htmlspecialchars($article->getSlug()) ?>">
+                <?= htmlspecialchars($article->getTitle()) ?>
+            </a>
+        </h2>
+        
+        <?php if ($article->getDescription()): ?>
+            <p><?= htmlspecialchars($article->getDescription()) ?></p>
+        <?php endif; ?>
+        
+        <div class="meta">
+            <?php if ($article->getCategory()): ?>
+                <span>Category: <?= htmlspecialchars($article->getCategory()) ?></span>
+            <?php endif; ?>
+            
+            <?php if ($article->getAuthor()): ?>
+                <span>By: <?= htmlspecialchars($article->getAuthor()) ?></span>
+            <?php endif; ?>
+            
+            <time><?= $article->getDatePublished() ?></time>
+        </div>
+        
+        <?php if( $article->getTags() ): ?>
+            <div class="tags">
+                <?php foreach( $article->getTags() as $tag ): ?>
+                    <span class="tag">#<?= htmlspecialchars( $tag ) ?></span>
+                <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
+    </article>
+<?php endforeach; ?>
+```
+
+#### Single Article Example
+
+```php
+<?php
+try {
+    $article = $repository->getArticleBySlug( $slug );
     ?>
-    <h3><a href="/blahg/<?= $Article->getSlug() ?>"><?= $Article->getTitle() ?></a></h3>
-    Category: <?= $Article->getCategory() ?><br>
-    Tags:
+    <article>
+        <h1><?= htmlspecialchars( $article->getTitle() ) ?></h1>
+        
+        <div class="meta">
+            <?php if ($article->getAuthor()): ?>
+                <span>By <?= htmlspecialchars( $article->getAuthor() ) ?></span>
+            <?php endif; ?>
+            <time><?= $article->getDatePublished() ?></time>
+        </div>
+        
+        <div class="content">
+            <?= $article->getBody() ?>
+        </div>
+        
+        <?php if( $article->getTags()) : ?>
+            <div class="tags">
+                <?php foreach( $article->getTags() as $tag ): ?>
+                    <a href="/blog/tag/<?= urlencode( $tag ) ?>">
+                        #<?= htmlspecialchars( $tag ) ?>
+                    </a>
+                <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
+    </article>
     <?php
-    $Tags = $Article->getTags();
-    foreach( $Tags as $Tag )
-    {
-        ?>
-        <small>#<?= $Tag ?></small>
-    <?php
-    }
-    ?><br>
-    <small>Date published: <?= $Article->getDatePublished() ?></small><br>
-    <?php
+} catch( ArticleNotFound $e ) {
+    echo "<p>Article not found.</p>";
+} catch( ArticleMissingBody $e ) {
+    echo "<p>Article content is missing.</p>";
 }
 ?>
 ```
 
-### Render Article
+### RSS Feed Generation
+
+```php
+// Generate RSS feed
+$rssFeed = $repository->getRss(
+    title: 'My Blog',
+    link: 'https://example.com/blog',
+    description: 'A blog about various topics'
+);
+
+// Output RSS feed
+header('Content-Type: application/rss+xml; charset=utf-8');
+echo $rssFeed;
 ```
-try
-{
-    $Article = $Blahg->getArticle( '10-reasons-why-i-love-broccoli' );
-}
-catch( ArticleNotFound $Exception )
-{}
-catch( ArticleMissingBody $Exception )
-{}
+
+## Exception Handling
+
+The library throws specific exceptions for different error conditions:
+
+- `ArticleNotFound` - Thrown when requesting a non-existent article
+- `ArticleMissingBody` - Thrown when the Markdown file referenced in the YAML descriptor is missing
+- `ArticleMissingData` - Thrown when required YAML fields are missing
+
+## Testing
+
+Run the test suite:
+
+```bash
+composer test
 ```
-### Roadmap
 
-Repository::getAllByDateRange( string $Start, string $End ) : array
+Run tests with coverage:
 
-Repository::getAllByPage( int $PageNum, int $PageCount ) : array
+```bash
+composer test-coverage
+```
 
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.

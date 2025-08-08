@@ -332,6 +332,8 @@ class Repository
 	 */
 	public function getFeed( string $Name, string $Description, string $Url, string $FeedUrl, array $Articles ): string
 	{
+		error_reporting(E_ALL & ~E_DEPRECATED );
+
 		$Feed = new Feed();
 
 		$Channel = new Channel();

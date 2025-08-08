@@ -1,3 +1,6 @@
+## 0.5.1 2025-08-08
+* Updated readme.
+
 ## 0.5.0 2025-08-08
 
 * Housekeeping.
