@@ -1,5 +1,4 @@
 <?php
-error_reporting(E_ALL & ~E_DEPRECATED);
 
 use Blahg\Repository;
 use Blahg\Exception\ArticleNotFound;
@@ -78,26 +77,26 @@ class RepositoryTest extends PHPUnit\Framework\TestCase
 	public function testGetList()
 	{
 		$this->assertIsArray(
-			$this->Repo->getAll()
+			$this->Repo->getArticles()
 		);
 	}
 	
 	public function testGetAllWithmax()
 	{
 		$this->assertEquals(
-			count( $this->Repo->getAll( 1 ) ),
+			count( $this->Repo->getArticles( 1 ) ),
 			1
 		);
 
        $this->assertEquals(
-            count( $this->Repo->getAll( 2 ) ),
+            count( $this->Repo->getArticles( 2 ) ),
             2
         );
 	}
 
 	public function testAllGetByTag()
 	{
-		$List = $this->Repo->getAllByTag( 'broccoli' );
+		$List = $this->Repo->getArticlesByTag( 'broccoli' );
 
 		$this->assertTrue(
 			count( $List ) > 0
@@ -106,7 +105,7 @@ class RepositoryTest extends PHPUnit\Framework\TestCase
 
 	public function testGetAllByTagFail()
 	{
-		$List = $this->Repo->getAllByTag( 'squash' );
+		$List = $this->Repo->getArticlesByTag( 'squash' );
 
 		$this->assertFalse(
 			count( $List ) > 0
@@ -115,7 +114,7 @@ class RepositoryTest extends PHPUnit\Framework\TestCase
 
 	public function testAllGetByCategory()
 	{
-		$List = $this->Repo->getAllByCategory( 'Food' );
+		$List = $this->Repo->getArticlesByCategory( 'Food' );
 
 		$this->assertTrue(
 			count( $List ) > 0
@@ -124,7 +123,7 @@ class RepositoryTest extends PHPUnit\Framework\TestCase
 
 	public function testGetAllByCategoryFail()
 	{
-		$List = $this->Repo->getAllByCategory( 'squash' );
+		$List = $this->Repo->getArticlesByCategory( 'squash' );
 
 		$this->assertFalse(
 			count( $List ) > 0
@@ -138,7 +137,7 @@ class RepositoryTest extends PHPUnit\Framework\TestCase
 			'Mah blagh',
 			'http://me.blagh',
 			'http://me.blagh/blagh',
-			$this->Repo->getAll()
+			$this->Repo->getArticles()
 		);
 
 
@@ -172,4 +171,64 @@ class RepositoryTest extends PHPUnit\Framework\TestCase
 
         $this->assertFalse( $Found );
     }
+
+	 public function testGetAllByAuthor()
+	 {
+		 $List = $this->Repo->getArticlesByAuthor( 'Lee Jones' );
+
+		 $this->assertTrue(
+			 count( $List ) > 0
+		 );
+	 }
+
+	 public function testEmptyDirectory()
+	 {
+		 $this->Repo = new Repository( 'empty' );
+
+		 $this->assertEmpty(
+			 $this->Repo->getArticles()
+		 );
+	 }
+
+	public function testGetAuthors()
+	{
+		$Authors = $this->Repo->getAuthors();
+
+		$this->assertIsArray( $Authors );
+		$this->assertTrue( count( $Authors ) > 0 );
+
+		foreach( $Authors as $Author )
+		{
+			$this->assertIsString( $Author );
+			$this->assertNotEmpty( $Author );
+		}
+	}
+
+	public function testGetCategories()
+	{
+		$Categories = $this->Repo->getCategories();
+
+		$this->assertIsArray( $Categories );
+		$this->assertTrue( count( $Categories ) > 0 );
+
+		foreach( $Categories as $Category )
+		{
+			$this->assertIsString( $Category );
+			$this->assertNotEmpty( $Category );
+		}
+	}
+
+	public function testGetTags()
+	{
+		$Tags = $this->Repo->getTags();
+
+		$this->assertIsArray( $Tags );
+		$this->assertTrue( count( $Tags ) > 0 );
+
+		foreach( $Tags as $Tag )
+		{
+			$this->assertIsString( $Tag );
+			$this->assertNotEmpty( $Tag );
+		}
+	}
 }

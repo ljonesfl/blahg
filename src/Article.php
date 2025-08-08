@@ -3,7 +3,6 @@
 namespace Blahg;
 
 use Blahg\Exception\ArticleMissingBody;
-use League\CommonMark\CommonMarkConverter;
 use League\CommonMark\Exception\CommonMarkException;
 use League\CommonMark\GithubFlavoredMarkdownConverter;
 use League\CommonMark\MarkdownConverter;
@@ -19,7 +18,7 @@ class Article
 	private string $_Description = "";
 	private string $_DatePublished;
 	private string $_Category = "";
-	private array  $_Tags;
+	private array  $_Tags = [];
 	private string $_BodyPath;
 	private string $_Body;
 	private bool   $_Draft = false;
@@ -93,36 +92,36 @@ class Article
 	}
 
 	/**
-	 * @return mixed
+	 * @return bool
 	 */
-	public function getDraft()
+	public function isDraft() : bool
 	{
 		return $this->_Draft;
 	}
 
 	/**
-	 * @param mixed $Draft
+	 * @param bool $Draft
 	 * @return Article
 	 */
-	public function setDraft( $Draft )
+	public function setDraft( bool $Draft ) : Article
 	{
 		$this->_Draft = $Draft;
 		return $this;
 	}
 
 	/**
-	 * @return mixed
+	 * @return string
 	 */
-	public function getSlug()
+	public function getSlug() : string
 	{
 		return $this->_Slug;
 	}
 
 	/**
-	 * @param mixed $Slug
+	 * @param string $Slug
 	 * @return Article
 	 */
-	public function setSlug( $Slug )
+	public function setSlug( string $Slug ) : Article
 	{
 		$this->_Slug = $Slug;
 		return $this;
@@ -324,7 +323,6 @@ class Article
 		// Add the extension
 		$environment->addExtension( new FootnoteExtension() );
 
-		$Converter = new MarkdownConverter( $environment );
-		return $Converter;
+		return new MarkdownConverter( $environment );
 	}
 }

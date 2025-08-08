@@ -1,4 +1,8 @@
-## 0.0.21
+## 0.5.0
+
+* Housekeeping.
+* Added getTags, getAuthors, and getCategories to the repository.
+* Refactored method names.
 
 ## 0.0.20 2025-02-07
 * Updated php version.
@@ -7,13 +11,13 @@
 * Updated php version.
 
 ## 0.0.18 2024-12-26
-* Added the footnotes extension to the markdown processing.
+* Added the footnotes extension to the Markdown processing.
 
 ## 0.0.17 2024-12-26
-* Added githubflavored setting to articles to change the markdown processing.
+* Added githubflavored setting to articles to change the Markdown processing.
 
 ## 0.0.16 2024-12-26
-* Removed strip html from markdown processing.
+* Removed strip html from Markdown processing.
 
 ## 0.0.15 2024-12-24
 
@@ -36,7 +40,7 @@
 * Added description to articles to support meta-description.
 
 ## 0.0.8 2020-09-09
-* Now uses github flavored markdown.
+* Now uses GitHub flavored Markdown.
 * PHP74
 
 ## 0.0.7 2020-03-30
