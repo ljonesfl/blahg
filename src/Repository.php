@@ -4,12 +4,13 @@ namespace Blahg;
 
 use Blahg\Exception\ArticleMissingBody;
 use Blahg\Exception\ArticleNotFound;
+use League\CommonMark\Exception\CommonMarkException;
 use Suin\RSSWriter\Channel;
 use Suin\RSSWriter\Feed;
 use Suin\RSSWriter\Item;
 use Symfony\Component\Yaml\Yaml;
 
-function ArticleCmp( $ArticleA, $ArticleB )
+function ArticleCmp( $ArticleA, $ArticleB ): int
 {
 	$TimeA = strtotime( $ArticleA->getDatePublished() );
 	$TimeB = strtotime( $ArticleB->getDatePublished() );
@@ -23,7 +24,7 @@ function ArticleCmp( $ArticleA, $ArticleB )
 
 class Repository
 {
-	private array $_List = array();
+	private array $_List = [];
 	private string $_Root;
 	private bool $_ShowDrafts;
 
@@ -32,48 +33,17 @@ class Repository
 	 * @param string $Dir
 	 * @param bool $ShowDrafts
 	 */
-	public function __construct( string $Dir, $ShowDrafts = false )
+	public function __construct( string $Dir, bool $ShowDrafts = false )
 	{
 		$this->_Root = $Dir;
 
 		$this->setShowDrafts( $ShowDrafts );
 
-		$Files = scandir( $Dir );
-
-		if( !is_array( $Files ) )
-		{
-			return;
-		}
-
-		foreach( $Files as $key => $File )
-		{
-			if( $File[ 0 ] == '.' )
-			{
-				continue;
-			}
-
-			if( !fnmatch( "*.yaml", $File ) )
-			{
-				continue;
-			}
-
-			$Path = $Dir . '/' . $File;
-
-			$Article = $this->loadArticle( $Path );
-
-			if( !$this->shouldDisplay( $Article ) )
-			{
-				continue;
-			}
-
-			$this->_List[] = $Article;
-		}
-
-		usort( $this->_List, 'Blahg\ArticleCmp' );
+		$this->loadArticles();
 	}
 
 	/**
-	 * @return mixed
+	 * @return bool
 	 */
 	public function getShowDrafts() : bool
 	{
@@ -84,7 +54,7 @@ class Repository
 	 * @param mixed $ShowDrafts
 	 * @return Repository
 	 */
-	public function setShowDrafts( bool $ShowDrafts )
+	public function setShowDrafts( bool $ShowDrafts ) : Repository
 	{
 		$this->_ShowDrafts = $ShowDrafts;
 		return $this;
@@ -100,7 +70,7 @@ class Repository
 	{
 		$Display = true;
 
-		if( !$this->getShowDrafts() && $Article->getDraft() )
+		if( !$this->getShowDrafts() && $Article->isDraft() )
 		{
 			$Display = false;
 		}
@@ -117,7 +87,7 @@ class Repository
 	 * @param int $Max
 	 * @return array
 	 */
-	public function getAll( int $Max = 0 ): array
+	public function getArticles( int $Max = 0 ): array
 	{
 		if( $Max )
 		{
@@ -127,18 +97,46 @@ class Repository
 		return $this->_List;
 	}
 
+	/**
+	 * Loads an article from a YAML file.
+	 *
+	 * @param string $FileName
+	 * @return Article
+	 */
 	protected function loadArticle( string $FileName ): Article
 	{
 		$File = Yaml::parseFile( $FileName );
 
 		$Article = new Article();
 
+		$requiredFields = [
+			'title',
+			'slug',
+			'datePublished',
+			'path'
+		];
+
+		foreach( $requiredFields as $field )
+		{
+			if( !isset( $File[ $field ] ) )
+			{
+				throw new Exception\ArticleMissingData( $field );
+			}
+		}
 		$Article->setTitle( $File[ 'title' ] );
 		$Article->setSlug( $File[ 'slug' ] );
 		$Article->setDatePublished( $File[ 'datePublished' ] );
 		$Article->setBodyPath( $File[ 'path' ] );
-		$Article->setTags( $File[ 'tags' ] );
-		$Article->setCategory( $File[ 'category' ] );
+
+		if( isset( $File[ 'category' ] ) )
+		{
+			$Article->setCategory( $File[ 'category' ] );
+		}
+
+		if( isset( $File[ 'tags' ] ) )
+		{
+			$Article->setTags( $File[ 'tags' ] );
+		}
 
 		if( isset( $File[ 'githubFlavored' ] ) )
 		{
@@ -169,20 +167,19 @@ class Repository
 	}
 
 	/**
-	 * @param $Slug
+	 * @param string $Slug
 	 * @return Article
 	 *
 	 * @throws ArticleNotFound
-	 * @throws ArticleMissingBody
 	 */
-
 	public function getArticleBySlug( string $Slug ): Article
 	{
 		foreach( $this->_List as $Article )
 		{
 			if( $Article->getSlug() == $Slug )
 			{
-				$Article->loadBody( $this->_Root );
+					$Article->loadBody( $this->_Root );
+
 				return $Article;
 			}
 		}
@@ -194,7 +191,7 @@ class Repository
 	 * @param string $Tag
 	 * @return array
 	 */
-	public function getAllByTag( string $Tag ): array
+	public function getArticlesByTag( string $Tag ): array
 	{
 		$List = [];
 
@@ -213,7 +210,7 @@ class Repository
 	 * @param string $Category
 	 * @return array
 	 */
-	public function getAllByCategory( string $Category ): array
+	public function getArticlesByCategory( string $Category ): array
 	{
 		$List = [];
 
@@ -234,7 +231,7 @@ class Repository
 	 * @param string $Author
 	 * @return array
 	 */
-	public function getAllByAuthor( string $Author ): array
+	public function getArticlesByAuthor( string $Author ): array
 	{
 		$List = [];
 
@@ -249,6 +246,90 @@ class Repository
 		return $List;
 	}
 
+	/**
+	 * Returns a list of all authors in the repository.
+	 *
+	 * @return array
+	 */
+	public function getAuthors(): array
+	{
+		$Authors = [];
+
+		foreach( $this->_List as $Article )
+		{
+			if( !in_array( $Article->getAuthor(), $Authors ) )
+			{
+				if( $Article->getAuthor() === null || $Article->getAuthor() === '' )
+				{
+					continue;
+				}
+
+				$Authors[] = $Article->getAuthor();
+			}
+		}
+
+		sort( $Authors );
+
+		return $Authors;
+	}
+
+	/**
+	 * Returns a list of all categories in the repository.
+	 *
+	 * @return array
+	 */
+	public function getCategories(): array
+	{
+		$Categories = [];
+
+		foreach( $this->_List as $Article )
+		{
+			if( !in_array( $Article->getCategory(), $Categories ) )
+			{
+				$Categories[] = $Article->getCategory();
+			}
+		}
+
+		sort( $Categories );
+
+		return $Categories;
+	}
+
+	/**
+	 * Returns a list of all tags in the repository.
+	 *
+	 * @return array
+	 */
+	public function getTags(): array
+	{
+		$Tags = [];
+
+		foreach( $this->_List as $Article )
+		{
+			foreach( $Article->getTags() as $Tag )
+			{
+				if( !in_array( $Tag, $Tags ) )
+				{
+					$Tags[] = $Tag;
+				}
+			}
+		}
+
+		sort( $Tags );
+
+		return $Tags;
+	}
+
+	/**
+	 * Generates an RSS feed for the repository.
+	 *
+	 * @param string $Name
+	 * @param string $Description
+	 * @param string $Url
+	 * @param string $FeedUrl
+	 * @param array $Articles
+	 * @return string
+	 */
 	public function getFeed( string $Name, string $Description, string $Url, string $FeedUrl, array $Articles ): string
 	{
 		$Feed = new Feed();
@@ -266,21 +347,84 @@ class Repository
 
 		foreach( $Articles as $Data )
 		{
-			$Article = $this->getArticleBySlug( $Data->getSlug() );
+			try
+			{
+				$Article = $this->getArticleBySlug( $Data->getSlug() );
+			}
+			catch( ArticleNotFound | ArticleMissingBody $e )
+			{
+				continue;
+			}
 
 			$Item = new Item();
 
 			$Link = $Url . '/blahg/' . $Article->getSlug();
-			$Item->title( $Article->getTitle() )
-				  ->description( $Article->getBodyHtml() )
-				  ->contentEncoded( $Article->getBodyHtml() )
-				  ->url( $Link )
-				  ->pubDate( strtotime( $Article->getDatePublished() ) )
-				  ->guid( $Link, true )
-				  ->preferCdata( true )
-				  ->appendTo( $Channel );
+
+			try
+			{
+				$Item->title( $Article->getTitle() )
+					  ->description( $Article->getBodyHtml() )
+					  ->contentEncoded( $Article->getBodyHtml() )
+					  ->url( $Link )
+					  ->pubDate( strtotime( $Article->getDatePublished() ) )
+					  ->guid( $Link, true )
+					  ->preferCdata( true )
+					  ->appendTo( $Channel );
+			}
+			catch( CommonMarkException $e )
+			{
+				continue;
+			}
 		}
 
 		return $Feed->render();
+	}
+
+	/**
+	 * @param array $Files
+	 * @param string $Dir
+	 * @return void
+	 */
+	protected function loadArticles(): void
+	{
+		$Files = @scandir( $this->_Root );
+
+		if( !is_array( $Files ) )
+		{
+			return;
+		}
+
+		foreach( $Files as $File )
+		{
+			if( $File[ 0 ] == '.' )
+			{
+				continue;
+			}
+
+			if( !fnmatch( "*.yaml", $File ) )
+			{
+				continue;
+			}
+
+			$Path = $this->_Root . '/' . $File;
+
+			try
+			{
+				$Article = $this->loadArticle( $Path );
+			}
+			catch( Exception\ArticleMissingData $e )
+			{
+				continue;
+			}
+
+			if( !$this->shouldDisplay( $Article ) )
+			{
+				continue;
+			}
+
+			$this->_List[] = $Article;
+		}
+
+		usort( $this->_List, 'Blahg\ArticleCmp' );
 	}
 }
