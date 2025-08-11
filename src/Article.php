@@ -11,29 +11,29 @@ use League\CommonMark\Environment\Environment;
 use League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension;
 use League\CommonMark\Extension\Footnote\FootnoteExtension;
 
-class Article
+class Article implements IArticle
 {
-	private string $_Slug;
-	private string $_Title;
-	private string $_Description = "";
-	private string $_DatePublished;
-	private string $_Category = "";
-	private array  $_Tags = [];
-	private string $_BodyPath;
-	private string $_Body;
-	private bool   $_Draft = false;
-	private string $_CanonicalUrl = "";
-	private string $_Author = "";
-	private bool	$_GithubFlavored = false;
+	private string $_slug;
+	private string $_title;
+	private string $_description = "";
+	private string $_datePublished;
+	private string $_category = "";
+	private array  $_tags = [];
+	private string $_bodyPath;
+	private string $_body;
+	private bool   $_draft = false;
+	private string $_canonicalUrl = "";
+	private string $_author = "";
+	private bool	$_githubFlavored = false;
 
 	public function isGithubFlavored(): bool
 	{
-		return $this->_GithubFlavored;
+		return $this->_githubFlavored;
 	}
 
-	public function setGithubFlavored( bool $GithubFlavored ): Article
+	public function setGithubFlavored( bool $githubFlavored ): IArticle
 	{
-		$this->_GithubFlavored = $GithubFlavored;
+		$this->_githubFlavored = $githubFlavored;
 		return $this;
 	}
 
@@ -42,16 +42,16 @@ class Article
 	 */
 	public function getAuthor(): string
 	{
-		return $this->_Author;
+		return $this->_author;
 	}
 
 	/**
-	 * @param string $Author
-	 * @return Article
+	 * @param string $author
+	 * @return IArticle
 	 */
-	public function setAuthor( string $Author ): Article
+	public function setAuthor( string $author ): IArticle
 	{
-		$this->_Author = $Author;
+		$this->_author = $author;
 		return $this;
 	}
 
@@ -60,16 +60,16 @@ class Article
 	 */
 	public function getCanonicalUrl(): string
 	{
-		return $this->_CanonicalUrl;
+		return $this->_canonicalUrl;
 	}
 
 	/**
-	 * @param string $CanonicalUrl
-	 * @return Article
+	 * @param string $canonicalUrl
+	 * @return IArticle
 	 */
-	public function setCanonicalUrl( string $CanonicalUrl ): Article
+	public function setCanonicalUrl( string $canonicalUrl ): IArticle
 	{
-		$this->_CanonicalUrl = $CanonicalUrl;
+		$this->_canonicalUrl = $canonicalUrl;
 		return $this;
 	}
 
@@ -78,16 +78,16 @@ class Article
 	 */
 	public function getDescription(): string
 	{
-		return $this->_Description;
+		return $this->_description;
 	}
 
 	/**
-	 * @param string $Description
-	 * @return Article
+	 * @param string $description
+	 * @return IArticle
 	 */
-	public function setDescription( string $Description ): Article
+	public function setDescription( string $description ): IArticle
 	{
-		$this->_Description = $Description;
+		$this->_description = $description;
 		return $this;
 	}
 
@@ -96,16 +96,16 @@ class Article
 	 */
 	public function isDraft() : bool
 	{
-		return $this->_Draft;
+		return $this->_draft;
 	}
 
 	/**
-	 * @param bool $Draft
-	 * @return Article
+	 * @param bool $draft
+	 * @return IArticle
 	 */
-	public function setDraft( bool $Draft ) : Article
+	public function setDraft( bool $draft ) : IArticle
 	{
-		$this->_Draft = $Draft;
+		$this->_draft = $draft;
 		return $this;
 	}
 
@@ -114,16 +114,16 @@ class Article
 	 */
 	public function getSlug() : string
 	{
-		return $this->_Slug;
+		return $this->_slug;
 	}
 
 	/**
-	 * @param string $Slug
-	 * @return Article
+	 * @param string $slug
+	 * @return IArticle
 	 */
-	public function setSlug( string $Slug ) : Article
+	public function setSlug( string $slug ) : IArticle
 	{
-		$this->_Slug = $Slug;
+		$this->_slug = $slug;
 		return $this;
 	}
 
@@ -132,16 +132,16 @@ class Article
 	 */
 	public function getBodyPath(): string
 	{
-		return $this->_BodyPath;
+		return $this->_bodyPath;
 	}
 
 	/**
-	 * @param mixed $BodyPath
-	 * @return Article
+	 * @param mixed $bodyPath
+	 * @return IArticle
 	 */
-	public function setBodyPath( string $BodyPath ): Article
+	public function setBodyPath( string $bodyPath ): IArticle
 	{
-		$this->_BodyPath = $BodyPath;
+		$this->_bodyPath = $bodyPath;
 		return $this;
 	}
 
@@ -150,7 +150,7 @@ class Article
 	 */
 	public function getBody(): string
 	{
-		return $this->_Body;
+		return $this->_body;
 	}
 
 	/**
@@ -161,23 +161,23 @@ class Article
 	{
 		if( $this->isGithubFlavored() )
 		{
-			$Converter = $this->getGithubFlavoredMarkdownConverter();
+			$converter = $this->getGithubFlavoredMarkdownConverter();
 		}
 		else
 		{
-			$Converter = $this->getCommonmarkConverter();
+			$converter = $this->getCommonmarkConverter();
 		}
 
-		return $Converter->convert( $this->_Body );
+		return $converter->convert( $this->_body );
 	}
 
 	/**
-	 * @param mixed $Text
-	 * @return Article
+	 * @param mixed $text
+	 * @return IArticle
 	 */
-	public function setBody( string $Text ): Article
+	public function setBody( string $text ): IArticle
 	{
-		$this->_Body = $Text;
+		$this->_body = $text;
 		return $this;
 	}
 
@@ -186,16 +186,16 @@ class Article
 	 */
 	public function getTitle(): string
 	{
-		return $this->_Title;
+		return $this->_title;
 	}
 
 	/**
-	 * @param mixed $Title
-	 * @return Article
+	 * @param mixed $title
+	 * @return IArticle
 	 */
-	public function setTitle( string $Title ): Article
+	public function setTitle( string $title ): IArticle
 	{
-		$this->_Title = $Title;
+		$this->_title = $title;
 		return $this;
 	}
 
@@ -204,16 +204,16 @@ class Article
 	 */
 	public function getDatePublished(): string
 	{
-		return $this->_DatePublished;
+		return $this->_datePublished;
 	}
 
 	/**
-	 * @param mixed $DatePublished
-	 * @return Article
+	 * @param mixed $datePublished
+	 * @return IArticle
 	 */
-	public function setDatePublished( string $DatePublished ): Article
+	public function setDatePublished( string $datePublished ): IArticle
 	{
-		$this->_DatePublished = $DatePublished;
+		$this->_datePublished = $datePublished;
 		return $this;
 	}
 
@@ -222,16 +222,16 @@ class Article
 	 */
 	public function getCategory(): string
 	{
-		return $this->_Category;
+		return $this->_category;
 	}
 
 	/**
-	 * @param mixed $Category
-	 * @return Article
+	 * @param mixed $category
+	 * @return IArticle
 	 */
-	public function setCategory( string $Category ): Article
+	public function setCategory( string $category ): IArticle
 	{
-		$this->_Category = $Category;
+		$this->_category = $category;
 		return $this;
 	}
 
@@ -240,28 +240,28 @@ class Article
 	 */
 	public function getTags(): array
 	{
-		return $this->_Tags;
+		return $this->_tags;
 	}
 
 	/**
-	 * @param mixed $Tags
-	 * @return Article
+	 * @param mixed $tags
+	 * @return IArticle
 	 */
-	public function setTags( array $Tags ): Article
+	public function setTags( array $tags ): IArticle
 	{
-		$this->_Tags = $Tags;
+		$this->_tags = $tags;
 		return $this;
 	}
 
 	/**
-	 * @param string $Target
+	 * @param string $target
 	 * @return bool
 	 */
-	public function hasTag( string $Target ): bool
+	public function hasTag( string $target ): bool
 	{
-		foreach( $this->_Tags as $Tag )
+		foreach( $this->_tags as $tag )
 		{
-			if( $Tag == $Target )
+			if( $tag == $target )
 			{
 				return true;
 			}
@@ -271,19 +271,19 @@ class Article
 	}
 
 	/**
-	 * @param string $Root
+	 * @param string $root
 	 * @throws ArticleMissingBody
 	 */
-	public function loadBody( string $Root ): void
+	public function loadBody( string $root ): void
 	{
-		$File = $Root . '/' . $this->getBodyPath();
+		$file = $root . '/' . $this->getBodyPath();
 
-		if( !file_exists( $File ) )
+		if( !file_exists( $file ) )
 		{
 			throw new ArticleMissingBody();
 		}
 
-		$this->setBody( file_get_contents( $File ) );
+		$this->setBody( file_get_contents( $file ) );
 	}
 
 	/**

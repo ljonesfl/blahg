@@ -10,34 +10,35 @@ use Suin\RSSWriter\Feed;
 use Suin\RSSWriter\Item;
 use Symfony\Component\Yaml\Yaml;
 
-function ArticleCmp( $ArticleA, $ArticleB ): int
+function ArticleCmp( $articleA, $articleB ): int
 {
-	$TimeA = strtotime( $ArticleA->getDatePublished() );
-	$TimeB = strtotime( $ArticleB->getDatePublished() );
+	$timeA = strtotime( $articleA->getDatePublished() );
+	$timeB = strtotime( $articleB->getDatePublished() );
 
-	if( $TimeA == $TimeB )
+	if( $timeA == $timeB )
 	{
 		return 0;
 	}
-	return ( $TimeB < $TimeA ) ? -1 : 1;
+	return ( $timeB < $timeA ) ? -1 : 1;
 }
 
-class Repository
+class Repository implements IRepository
 {
-	private array $_List = [];
-	private string $_Root;
-	private bool $_ShowDrafts;
+	private array $_list = [];
+	private string $_root;
+	private bool $_showDrafts;
+	private int $_pageSize = 10;
 
 	/**
 	 * Repository constructor.
-	 * @param string $Dir
-	 * @param bool $ShowDrafts
+	 * @param string $dir
+	 * @param bool $showDrafts
 	 */
-	public function __construct( string $Dir, bool $ShowDrafts = false )
+	public function __construct( string $dir, bool $showDrafts = false )
 	{
-		$this->_Root = $Dir;
+		$this->_root = $dir;
 
-		$this->setShowDrafts( $ShowDrafts );
+		$this->setShowDrafts( $showDrafts );
 
 		$this->loadArticles();
 	}
@@ -47,67 +48,136 @@ class Repository
 	 */
 	public function getShowDrafts() : bool
 	{
-		return $this->_ShowDrafts;
+		return $this->_showDrafts;
 	}
 
 	/**
-	 * @param mixed $ShowDrafts
-	 * @return Repository
+	 * @param mixed $showDrafts
+	 * @return IRepository
 	 */
-	public function setShowDrafts( bool $ShowDrafts ) : Repository
+	public function setShowDrafts( bool $showDrafts ) : IRepository
 	{
-		$this->_ShowDrafts = $ShowDrafts;
+		$this->_showDrafts = $showDrafts;
 		return $this;
 	}
 
 	/**
-	 * @param Article $Article
+	 * @param IArticle $article
 	 * @return bool
 	 *
 	 * Test whether an article should be visible or not.
 	 */
-	public function shouldDisplay( Article $Article ): bool
+	public function isDisplayable( IArticle $article ): bool
 	{
-		$Display = true;
+		$display = true;
 
-		if( !$this->getShowDrafts() && $Article->isDraft() )
+		if( !$this->getShowDrafts() && $article->isDraft() )
 		{
-			$Display = false;
+			$display = false;
 		}
 
-		if( strtotime( $Article->getDatePublished() ) > time() )
+		if( strtotime( $article->getDatePublished() ) > time() )
 		{
-			$Display = false;
+			$display = false;
 		}
 
-		return $Display;
+		return $display;
 	}
 
 	/**
-	 * @param int $Max
+	 * @param int $limit Maximum number of articles to return (0 = all)
+	 * @param int $offset Number of articles to skip from the beginning
 	 * @return array
 	 */
-	public function getArticles( int $Max = 0 ): array
+	public function getArticles( int $limit = 0, int $offset = 0 ): array
 	{
-		if( $Max )
+		if( $limit > 0 )
 		{
-			return array_slice( $this->_List, 0, $Max );
+			return array_slice( $this->_list, $offset, $limit );
 		}
 
-		return $this->_List;
+		if( $offset > 0 )
+		{
+			return array_slice( $this->_list, $offset );
+		}
+
+		return $this->_list;
+	}
+
+	/**
+	 * Returns the total count of articles in the repository
+	 *
+* @return int
+	 */
+	public function getArticleCount(): int
+	{
+		return count( $this->_list );
+	}
+
+	/**
+	 * Returns the number of pages based on the current page size
+	 *
+	 * @return int Number of pages (0 if pageSize is invalid)
+	 */
+	public function getPageCount(): int
+	{
+		if( $this->_pageSize <= 0 )
+		{
+			return 0;
+		}
+
+		return (int) ceil( $this->getArticleCount() / $this->_pageSize );
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getPageSize(): int
+	{
+		return $this->_pageSize;
+	}
+
+	/**
+	 * @param int $pageSize
+	 * @return IRepository
+	 */
+	public function setPageSize( int $pageSize ): IRepository
+	{
+		if( $pageSize > 0 )
+		{
+			$this->_pageSize = $pageSize;
+		}
+		return $this;
+	}
+
+	/**
+	 * Returns articles for a specific page number
+	 *
+	 * @param int $pageNumber Page number (1-based)
+	 * @return array
+	 */
+	public function getArticlePage( int $pageNumber ): array
+	{
+		if( $pageNumber < 1 || $this->_pageSize <= 0 )
+		{
+			return [];
+		}
+
+		$offset = ( $pageNumber - 1 ) * $this->_pageSize;
+		return $this->getArticles( $this->_pageSize, $offset );
 	}
 
 	/**
 	 * Loads an article from a YAML file.
 	 *
-	 * @param string $FileName
-	 * @return Article
+	 * @param string $fileName
+	 * @return IArticle
 	 */
-	protected function loadArticle( string $FileName ): Article
+	protected function loadArticle( string $fileName ): IArticle
 	{
-		$File = Yaml::parseFile( $FileName );
+		$file = Yaml::parseFile( $fileName );
 
-		$Article = new Article();
+		$article = new Article();
 
 		$requiredFields = [
 			'title',
@@ -118,69 +188,69 @@ class Repository
 
 		foreach( $requiredFields as $field )
 		{
-			if( !isset( $File[ $field ] ) )
+			if( !isset( $file[ $field ] ) )
 			{
 				throw new Exception\ArticleMissingData( $field );
 			}
 		}
-		$Article->setTitle( $File[ 'title' ] );
-		$Article->setSlug( $File[ 'slug' ] );
-		$Article->setDatePublished( $File[ 'datePublished' ] );
-		$Article->setBodyPath( $File[ 'path' ] );
+		$article->setTitle( $file[ 'title' ] );
+		$article->setSlug( $file[ 'slug' ] );
+		$article->setDatePublished( $file[ 'datePublished' ] );
+		$article->setBodyPath( $file[ 'path' ] );
 
-		if( isset( $File[ 'category' ] ) )
+		if( isset( $file[ 'category' ] ) )
 		{
-			$Article->setCategory( $File[ 'category' ] );
+			$article->setCategory( $file[ 'category' ] );
 		}
 
-		if( isset( $File[ 'tags' ] ) )
+		if( isset( $file[ 'tags' ] ) )
 		{
-			$Article->setTags( $File[ 'tags' ] );
+			$article->setTags( $file[ 'tags' ] );
 		}
 
-		if( isset( $File[ 'githubFlavored' ] ) )
+		if( isset( $file[ 'githubFlavored' ] ) )
 		{
-			$Article->setGithubFlavored( $File[ 'githubFlavored' ] );
+			$article->setGithubFlavored( $file[ 'githubFlavored' ] );
 		}
 
-		if( isset( $File[ 'description' ] ) )
+		if( isset( $file[ 'description' ] ) )
 		{
-			$Article->setDescription( $File[ 'description' ] );
+			$article->setDescription( $file[ 'description' ] );
 		}
 
-		if( isset( $File[ 'draft' ] ) )
+		if( isset( $file[ 'draft' ] ) )
 		{
-			$Article->setDraft( $File[ 'draft' ] );
+			$article->setDraft( $file[ 'draft' ] );
 		}
 
-		if( isset( $File[ 'canonicalUrl' ] ) )
+		if( isset( $file[ 'canonicalUrl' ] ) )
 		{
-			$Article->setCanonicalUrl( $File[ 'canonicalUrl' ] );
+			$article->setCanonicalUrl( $file[ 'canonicalUrl' ] );
 		}
 
-		if( isset( $File[ 'author' ] ) )
+		if( isset( $file[ 'author' ] ) )
 		{
-			$Article->setAuthor( $File[ 'author' ] );
+			$article->setAuthor( $file[ 'author' ] );
 		}
 
-		return $Article;
+		return $article;
 	}
 
 	/**
-	 * @param string $Slug
-	 * @return Article
+	 * @param string $slug
+	 * @return IArticle
 	 *
 	 * @throws ArticleNotFound
 	 */
-	public function getArticleBySlug( string $Slug ): Article
+	public function getArticleBySlug( string $slug ): IArticle
 	{
-		foreach( $this->_List as $Article )
+		foreach( $this->_list as $article )
 		{
-			if( $Article->getSlug() == $Slug )
+			if( $article->getSlug() == $slug )
 			{
-					$Article->loadBody( $this->_Root );
+					$article->loadBody( $this->_root );
 
-				return $Article;
+				return $article;
 			}
 		}
 
@@ -188,62 +258,62 @@ class Repository
 	}
 
 	/**
-	 * @param string $Tag
+	 * @param string $tag
 	 * @return array
 	 */
-	public function getArticlesByTag( string $Tag ): array
+	public function getArticlesByTag( string $tag ): array
 	{
-		$List = [];
+		$list = [];
 
-		foreach( $this->_List as $Article )
+		foreach( $this->_list as $article )
 		{
-			if( $Article->hasTag( $Tag ) )
+			if( $article->hasTag( $tag ) )
 			{
-				$List[] = $Article;
+				$list[] = $article;
 			}
 		}
 
-		return $List;
+		return $list;
 	}
 
 	/**
-	 * @param string $Category
+	 * @param string $category
 	 * @return array
 	 */
-	public function getArticlesByCategory( string $Category ): array
+	public function getArticlesByCategory( string $category ): array
 	{
-		$List = [];
+		$list = [];
 
-		foreach( $this->_List as $Article )
+		foreach( $this->_list as $article )
 		{
-			if( $Article->getCategory() == $Category )
+			if( $article->getCategory() == $category )
 			{
-				$List[] = $Article;
+				$list[] = $article;
 			}
 		}
 
-		return $List;
+		return $list;
 	}
 
 	/**
 	 * Gets all articles with an author field that contains any of the specified text.
 	 *
-	 * @param string $Author
+	 * @param string $author
 	 * @return array
 	 */
-	public function getArticlesByAuthor( string $Author ): array
+	public function getArticlesByAuthor( string $author ): array
 	{
-		$List = [];
+		$list = [];
 
-		foreach( $this->_List as $Article )
+		foreach( $this->_list as $article )
 		{
-			if( strstr( $Article->getAuthor(), $Author ) )
+			if( strstr( $article->getAuthor(), $author ) )
 			{
-				$List[] = $Article;
+				$list[] = $article;
 			}
 		}
 
-		return $List;
+		return $list;
 	}
 
 	/**
@@ -253,24 +323,24 @@ class Repository
 	 */
 	public function getAuthors(): array
 	{
-		$Authors = [];
+		$authors = [];
 
-		foreach( $this->_List as $Article )
+		foreach( $this->_list as $article )
 		{
-			if( !in_array( $Article->getAuthor(), $Authors ) )
+			if( !in_array( $article->getAuthor(), $authors ) )
 			{
-				if( $Article->getAuthor() === null || $Article->getAuthor() === '' )
+				if( $article->getAuthor() === null || $article->getAuthor() === '' )
 				{
 					continue;
 				}
 
-				$Authors[] = $Article->getAuthor();
+				$authors[] = $article->getAuthor();
 			}
 		}
 
-		sort( $Authors );
+		sort( $authors );
 
-		return $Authors;
+		return $authors;
 	}
 
 	/**
@@ -280,19 +350,19 @@ class Repository
 	 */
 	public function getCategories(): array
 	{
-		$Categories = [];
+		$categories = [];
 
-		foreach( $this->_List as $Article )
+		foreach( $this->_list as $article )
 		{
-			if( !in_array( $Article->getCategory(), $Categories ) )
+			if( !in_array( $article->getCategory(), $categories ) )
 			{
-				$Categories[] = $Article->getCategory();
+				$categories[] = $article->getCategory();
 			}
 		}
 
-		sort( $Categories );
+		sort( $categories );
 
-		return $Categories;
+		return $categories;
 	}
 
 	/**
@@ -302,76 +372,76 @@ class Repository
 	 */
 	public function getTags(): array
 	{
-		$Tags = [];
+		$tags = [];
 
-		foreach( $this->_List as $Article )
+		foreach( $this->_list as $article )
 		{
-			foreach( $Article->getTags() as $Tag )
+			foreach( $article->getTags() as $tag )
 			{
-				if( !in_array( $Tag, $Tags ) )
+				if( !in_array( $tag, $tags ) )
 				{
-					$Tags[] = $Tag;
+					$tags[] = $tag;
 				}
 			}
 		}
 
-		sort( $Tags );
+		sort( $tags );
 
-		return $Tags;
+		return $tags;
 	}
 
 	/**
 	 * Generates an RSS feed for the repository.
 	 *
-	 * @param string $Name
-	 * @param string $Description
-	 * @param string $Url
-	 * @param string $FeedUrl
-	 * @param array $Articles
+	 * @param string $name
+	 * @param string $description
+	 * @param string $url
+	 * @param string $feedUrl
+	 * @param array $articles
 	 * @return string
 	 */
-	public function getFeed( string $Name, string $Description, string $Url, string $FeedUrl, array $Articles ): string
+	public function getFeed( string $name, string $description, string $url, string $feedUrl, array $articles ): string
 	{
 		error_reporting(E_ALL & ~E_DEPRECATED );
 
-		$Feed = new Feed();
+		$feed = new Feed();
 
-		$Channel = new Channel();
+		$channel = new Channel();
 
-		$Channel->title( $Name )
-				  ->description( $Description )
-				  ->url( $Url )
-				  ->feedUrl( $FeedUrl )
+		$channel->title( $name )
+				  ->description( $description )
+				  ->url( $url )
+				  ->feedUrl( $feedUrl )
 				  ->language( 'en-US' )
 				  ->pubDate( time() )
 				  ->ttl( 60 )
-				  ->appendTo( $Feed );
+				  ->appendTo( $feed );
 
-		foreach( $Articles as $Data )
+		foreach( $articles as $data )
 		{
 			try
 			{
-				$Article = $this->getArticleBySlug( $Data->getSlug() );
+				$article = $this->getArticleBySlug( $data->getSlug() );
 			}
 			catch( ArticleNotFound | ArticleMissingBody $e )
 			{
 				continue;
 			}
 
-			$Item = new Item();
+			$item = new Item();
 
-			$Link = $Url . '/blahg/' . $Article->getSlug();
+			$link = $url . '/blahg/' . $article->getSlug();
 
 			try
 			{
-				$Item->title( $Article->getTitle() )
-					  ->description( $Article->getBodyHtml() )
-					  ->contentEncoded( $Article->getBodyHtml() )
-					  ->url( $Link )
-					  ->pubDate( strtotime( $Article->getDatePublished() ) )
-					  ->guid( $Link, true )
+				$item->title( $article->getTitle() )
+					  ->description( $article->getBodyHtml() )
+					  ->contentEncoded( $article->getBodyHtml() )
+					  ->url( $link )
+					  ->pubDate( strtotime( $article->getDatePublished() ) )
+					  ->guid( $link, true )
 					  ->preferCdata( true )
-					  ->appendTo( $Channel );
+					  ->appendTo( $channel );
 			}
 			catch( CommonMarkException $e )
 			{
@@ -379,54 +449,54 @@ class Repository
 			}
 		}
 
-		return $Feed->render();
+		return $feed->render();
 	}
 
 	/**
-	 * @param array $Files
-	 * @param string $Dir
+	 * @param array $files
+	 * @param string $dir
 	 * @return void
 	 */
 	protected function loadArticles(): void
 	{
-		$Files = @scandir( $this->_Root );
+		$files = @scandir( $this->_root );
 
-		if( !is_array( $Files ) )
+		if( !is_array( $files ) )
 		{
 			return;
 		}
 
-		foreach( $Files as $File )
+		foreach( $files as $file )
 		{
-			if( $File[ 0 ] == '.' )
+			if( $file[ 0 ] == '.' )
 			{
 				continue;
 			}
 
-			if( !fnmatch( "*.yaml", $File ) )
+			if( !fnmatch( "*.yaml", $file ) )
 			{
 				continue;
 			}
 
-			$Path = $this->_Root . '/' . $File;
+			$path = $this->_root . '/' . $file;
 
 			try
 			{
-				$Article = $this->loadArticle( $Path );
+				$article = $this->loadArticle( $path );
 			}
 			catch( Exception\ArticleMissingData $e )
 			{
 				continue;
 			}
 
-			if( !$this->shouldDisplay( $Article ) )
+			if( !$this->isDisplayable( $article ) )
 			{
 				continue;
 			}
 
-			$this->_List[] = $Article;
+			$this->_list[] = $article;
 		}
 
-		usort( $this->_List, 'Blahg\ArticleCmp' );
+		usort( $this->_list, 'Blahg\ArticleCmp' );
 	}
 }
