@@ -5,30 +5,30 @@ use Blahg\Repository;
 
 class ArticleTest extends TestCase
 {
-	public $Repo;
+	public $repo;
 
 	protected function setUp() : void
 	{
 		parent::setUp();
 
-		$this->Repo = new Repository( 'example' );
+		$this->repo = new Repository( 'example' );
 	}
 
 	public function testGetTags()
 	{
-		$Article = $this->Repo->getArticleBySlug( 'test-blog' );
-		$Tags    = $Article->getTags();
+		$article = $this->repo->getArticleBySlug( 'test-blog' );
+		$tags    = $article->getTags();
 
-		$this->assertIsArray( $Tags );
-		$this->assertCount( 2, $Tags );
-		$this->assertStringContainsString( "broccoli", $Tags[0] );
-		$this->assertStringContainsString( "food", $Tags[1] );
+		$this->assertIsArray( $tags );
+		$this->assertCount( 2, $tags );
+		$this->assertStringContainsString( "broccoli", $tags[0] );
+		$this->assertStringContainsString( "food", $tags[1] );
 	}
 
 	public function testGetBody()
 	{
-		$Article = $this->Repo->getArticleBySlug( 'test-blog' );
-		$Body    = $Article->getBody();
+		$article = $this->repo->getArticleBySlug( 'test-blog' );
+		$Body    = $article->getBody();
 
 		$this->assertIsString( $Body );
 		$this->assertStringContainsString( "This is a Test Blog", $Body );
@@ -39,7 +39,7 @@ class ArticleTest extends TestCase
 		$this->expectException( Blahg\Exception\ArticleMissingBody::class );
 
 		// Attempt to get the body of an article that doesn't have one
-		$Article = $this->Repo->getArticleBySlug( 'missing-body' );
-		$Article->getBody();
+		$article = $this->repo->getArticleBySlug( 'missing-body' );
+		$article->getBody();
 	}
 }

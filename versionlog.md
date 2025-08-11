@@ -1,4 +1,8 @@
+* Added article paging.
+* Refactored naming conventions.
+
 ## 0.5.2
+* Added interfaces for article and repository.
 
 ## 0.5.1 2025-08-08
 * Updated readme.
