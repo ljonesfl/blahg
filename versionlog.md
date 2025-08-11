@@ -1,3 +1,5 @@
+## 0.5.3
+
 * Added article paging.
 * Refactored naming conventions.
 
